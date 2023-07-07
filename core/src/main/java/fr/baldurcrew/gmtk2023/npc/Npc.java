@@ -34,18 +34,18 @@ public class Npc {
         final Body body = world.createBody(bodyDef);
         body.setUserData(this);
         {
-            final PolygonShape characterPolygon = new PolygonShape();
+            final PolygonShape colliderPolygon = new PolygonShape();
             final FixtureDef collider = new FixtureDef();
 
-            characterPolygon.setAsBox(NpcResources.NPC_COLLIDER_WIDTH / 2f, NpcResources.NPC_RENDER_HEIGHT / 2f);
+            colliderPolygon.setAsBox(NpcResources.NPC_COLLIDER_WIDTH / 2f, NpcResources.NPC_RENDER_HEIGHT / 2f);
 
-            collider.shape = characterPolygon;
+            collider.shape = colliderPolygon;
             collider.density = density;
             collider.friction = friction;
             collider.restitution = restitution;
 
             body.createFixture(collider);
-            characterPolygon.dispose();
+            colliderPolygon.dispose();
         }
 
         return body;
