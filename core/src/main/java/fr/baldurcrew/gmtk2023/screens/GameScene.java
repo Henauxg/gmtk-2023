@@ -5,6 +5,7 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.github.xpenatan.imgui.core.ImGui;
 import fr.baldurcrew.gmtk2023.Constants;
 import fr.baldurcrew.gmtk2023.CoreGame;
+import fr.baldurcrew.gmtk2023.level.Block;
 import fr.baldurcrew.gmtk2023.npc.Npc;
 
 public class GameScene implements Scene {
@@ -12,12 +13,14 @@ public class GameScene implements Scene {
     private final CoreGame game;
     private final World world;
     private Npc npc;
+    private Block block;
 
     public GameScene(CoreGame coreGame) {
         this.game = coreGame;
 
         world = new World(new Vector2(0, Constants.GRAVITY_VALUE), true);
         this.npc = new Npc(world, Constants.VIEWPORT_WIDTH / 2, Constants.VIEWPORT_HEIGHT / 2f);
+        this.block = new Block(world, Constants.VIEWPORT_WIDTH / 2, Constants.VIEWPORT_HEIGHT / 2f, 6f, 0.5f);
     }
 
     @Override
