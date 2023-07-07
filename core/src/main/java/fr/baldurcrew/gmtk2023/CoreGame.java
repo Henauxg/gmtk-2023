@@ -3,28 +3,25 @@ package fr.baldurcrew.gmtk2023;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.github.xpenatan.imgui.core.ImGui;
-import fr.baldurcrew.gmtk2023.screens.GameScreen;
-import fr.baldurcrew.gmtk2023.screens.MainMenuScreen;
+import fr.baldurcrew.gmtk2023.screens.MainMenuScene;
+import fr.baldurcrew.gmtk2023.screens.Scene;
 
 /**
  * {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms.
  */
-public class CoreGame extends Game implements InputProcessor {
+public class CoreGame extends Game {
 
-    private static final float CAMERA_ZOOM_SPEED = 0.08f;
     public SpriteBatch spriteBatch;
     public BitmapFont font;
     public OrthographicCamera camera;
     public boolean debugMode = true;
     private ImGuiWrapper imGuiWrapper;
-    private GameScreen gameScreen;
+    private Scene scene;
     private float fixedTimeStepAccumulator;
 
     @Override
@@ -36,10 +33,8 @@ public class CoreGame extends Game implements InputProcessor {
         camera.setToOrtho(false, Constants.VIEWPORT_WIDTH, Constants.VIEWPORT_HEIGHT);
 
         imGuiWrapper = new ImGuiWrapper();
-        // TODO If we want to handle mouse wheel scroll events, we need to share an input processor with ImGui
-//        Gdx.input.setInputProcessor(this);
 
-        this.setScreen(new MainMenuScreen(this));
+        this.setScene(new MainMenuScene(this));
     }
 
     @Override
@@ -59,7 +54,7 @@ public class CoreGame extends Game implements InputProcessor {
         doPhysicsStep(multipliedDeltaTime);
 
         imGuiWrapper.prepareRender();
-        if (gameScreen != null) gameScreen.render(multipliedDeltaTime);
+        if (scene != null) scene.render(multipliedDeltaTime);
         imGuiWrapper.render();
     }
 
@@ -68,10 +63,10 @@ public class CoreGame extends Game implements InputProcessor {
             debugMode = !debugMode;
         }
         if (this.screen != null) {
-            gameScreen.handleInputs();
+            scene.handleInputs();
 
             if (debugMode) {
-                gameScreen.handleDebugInputs();
+                scene.handleDebugInputs();
             }
         }
     }
@@ -82,7 +77,7 @@ public class CoreGame extends Game implements InputProcessor {
         float frameTime = Math.min(deltaTime, Constants.MIN_TIME_STEP);
         fixedTimeStepAccumulator += frameTime;
         while (fixedTimeStepAccumulator >= Constants.TIME_STEP) {
-            if (gameScreen != null) gameScreen.update();
+            if (scene != null) scene.update();
             // world.step(Constants.TIME_STEP, Constants.VELOCITY_ITERATIONS, Constants.POSITION_ITERATIONS);
             fixedTimeStepAccumulator -= Constants.TIME_STEP;
         }
@@ -98,9 +93,9 @@ public class CoreGame extends Game implements InputProcessor {
 
     }
 
-    public void setScreen(GameScreen gameScreen) {
-        this.gameScreen = gameScreen;
-        super.setScreen(gameScreen);
+    public void setScene(Scene scene) {
+        this.scene = scene;
+        super.setScreen(scene);
     }
 
     @Override
@@ -108,46 +103,5 @@ public class CoreGame extends Game implements InputProcessor {
         spriteBatch.dispose();
         font.dispose();
         ImGui.dispose();
-    }
-
-    @Override
-    public boolean keyDown(int keycode) {
-        return false;
-    }
-
-    @Override
-    public boolean keyUp(int keycode) {
-        return false;
-    }
-
-    @Override
-    public boolean keyTyped(char character) {
-        return false;
-    }
-
-    @Override
-    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        return false;
-    }
-
-    @Override
-    public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-        return false;
-    }
-
-    @Override
-    public boolean touchDragged(int screenX, int screenY, int pointer) {
-        return false;
-    }
-
-    @Override
-    public boolean mouseMoved(int screenX, int screenY) {
-        return false;
-    }
-
-    @Override
-    public boolean scrolled(float amountX, float amountY) {
-        camera.zoom = MathUtils.clamp(camera.zoom + CAMERA_ZOOM_SPEED * amountY, 0.5f, 1.f);
-        return false;
     }
 }
