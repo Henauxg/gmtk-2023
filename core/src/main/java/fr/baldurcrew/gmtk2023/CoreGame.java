@@ -6,6 +6,8 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.physics.box2d.Box2D;
+import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.github.xpenatan.imgui.core.ImGui;
 import fr.baldurcrew.gmtk2023.screens.MainMenuScene;
@@ -20,6 +22,7 @@ public class CoreGame extends Game {
     public BitmapFont font;
     public OrthographicCamera camera;
     public boolean debugMode = true;
+    public Box2DDebugRenderer debugRenderer;
     private ImGuiWrapper imGuiWrapper;
     private Scene scene;
     private float fixedTimeStepAccumulator;
@@ -33,6 +36,9 @@ public class CoreGame extends Game {
         camera.setToOrtho(false, Constants.VIEWPORT_WIDTH, Constants.VIEWPORT_HEIGHT);
 
         imGuiWrapper = new ImGuiWrapper();
+
+        Box2D.init();
+        debugRenderer = new Box2DDebugRenderer();
 
         this.setScene(new MainMenuScene(this));
     }
@@ -78,7 +84,6 @@ public class CoreGame extends Game {
         fixedTimeStepAccumulator += frameTime;
         while (fixedTimeStepAccumulator >= Constants.TIME_STEP) {
             if (scene != null) scene.update();
-            // world.step(Constants.TIME_STEP, Constants.VELOCITY_ITERATIONS, Constants.POSITION_ITERATIONS);
             fixedTimeStepAccumulator -= Constants.TIME_STEP;
         }
     }

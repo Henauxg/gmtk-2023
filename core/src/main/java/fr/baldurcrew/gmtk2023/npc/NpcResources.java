@@ -10,8 +10,10 @@ import java.util.stream.Stream;
 
 public class NpcResources {
 
-    public static final float NPC_WIDTH = 1;
-    public static final float NPC_HEIGHT = 1;
+    public static final float NPC_RENDER_WIDTH = 1;
+    public static final float NPC_RENDER_HEIGHT = 1;
+    public static final float NPC_COLLIDER_WIDTH = NPC_RENDER_WIDTH / 2.f;
+
 
     private static final float FRAME_DURATION = 0.25f;
     private static final int NPC_SPRITE_SHEET_COL_COUNT = 8;
