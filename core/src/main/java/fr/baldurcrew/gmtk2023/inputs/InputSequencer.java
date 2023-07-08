@@ -33,11 +33,11 @@ public class InputSequencer {
         this.inputId = 0;
         this.inputs = new LinkedList<>();
 
-        this.rightTexture = new Texture("right_arrow_pixelated.png");
-        this.leftTexture = new Texture("left_arrow_pixelated_blue.png");
-        this.jumpRightTexture = new Texture("right_arrow_jump.png");
-        this.jumpLeftTexture = new Texture("left_arrow_jump.png");
-        this.bordersTexture = new Texture("borders.png");
+        this.rightTexture = new Texture("inputs/right_arrow.png");
+        this.leftTexture = new Texture("inputs/left_arrow_.png");
+        this.jumpRightTexture = new Texture("inputs/right_arrow_jump.png");
+        this.jumpLeftTexture = new Texture("inputs/left_arrow_jump.png");
+        this.bordersTexture = new Texture("inputs/borders.png");
 
         if (generateRandomInputs) {
             fillInputQueue(QUEUE_INPUTS_RENDER_COUNT);

@@ -15,9 +15,9 @@ public class NumericRenderer implements Disposable {
 
     public NumericRenderer() {
         for (int i = 0; i < TEXTURES_COUNT; i++) {
-            numbers[i] = new Texture("number_" + i + ".png");
+            numbers[i] = new Texture("numbers/number_" + i + ".png");
         }
-        separator = new Texture("number_separator.png");
+        separator = new Texture("numbers/number_separator.png");
     }
 
     public void renderTimer(SpriteBatch spriteBatch, float x, float y, float renderWidth, float inputSeconds) {
