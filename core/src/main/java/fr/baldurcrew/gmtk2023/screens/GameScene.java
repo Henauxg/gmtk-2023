@@ -6,12 +6,15 @@ import com.github.xpenatan.imgui.core.ImGui;
 import fr.baldurcrew.gmtk2023.Constants;
 import fr.baldurcrew.gmtk2023.CoreGame;
 import fr.baldurcrew.gmtk2023.level.Block;
+import fr.baldurcrew.gmtk2023.level.Tilemap;
 import fr.baldurcrew.gmtk2023.npc.Npc;
 
 public class GameScene implements Scene {
 
+
     private final CoreGame game;
     private final World world;
+    private final Tilemap tilemap;
     private Npc npc;
     private Block block;
 
@@ -21,6 +24,8 @@ public class GameScene implements Scene {
         world = new World(new Vector2(0, Constants.GRAVITY_VALUE), true);
         this.npc = new Npc(world, Constants.VIEWPORT_WIDTH / 2, Constants.VIEWPORT_HEIGHT / 2f);
         this.block = new Block(world, Constants.VIEWPORT_WIDTH / 2, Constants.VIEWPORT_HEIGHT / 2f, 6f, 0.5f);
+
+        this.tilemap = new Tilemap(Constants.TILE_SIZE.cpy().scl(-1f), Constants.TILE_SIZE.cpy(), Math.round(Constants.VIEWPORT_WIDTH / Constants.TILE_SIZE.x) + 2, Math.round(Constants.VIEWPORT_HEIGHT / Constants.TILE_SIZE.y) + 2);
     }
 
     @Override
@@ -44,10 +49,11 @@ public class GameScene implements Scene {
     }
 
     @Override
-    public void render(float delta) {
+    public void render(float deltaTime) {
         game.spriteBatch.begin();
         game.spriteBatch.setProjectionMatrix(game.camera.combined);
-        npc.render(delta, game.spriteBatch);
+        tilemap.render(deltaTime, game.spriteBatch);
+        npc.render(deltaTime, game.spriteBatch);
         game.spriteBatch.end();
 
         ImGui.ShowDemoWindow();
