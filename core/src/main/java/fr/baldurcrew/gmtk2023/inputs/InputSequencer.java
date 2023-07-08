@@ -15,21 +15,27 @@ public class InputSequencer {
     private static final float QUEUE_RENDER_HEIGHT = 1.f;
     private static final int QUEUE_INPUTS_RENDER_COUNT = 10;
     private static final float QUEUE_INPUT_RENDER_WIDTH = QUEUE_RENDER_WIDTH / QUEUE_INPUTS_RENDER_COUNT;
-
+    private static final Input FAKE_IDLE_INPUT = new Input(InputType.Idle, UNIT_MOVEMENT_TICKS, 0);
+    private final boolean random;
     private final Texture rightTexture;
     private final Texture leftTexture;
     private final Texture bordersTexture;
-    private final boolean random;
+    private final Texture jumpRightTexture;
+    private final Texture jumpLeftTexture;
     private LinkedList<Input> inputs;
     private int currentInputTickCounter;
+    private int inputId;
 
     public InputSequencer(boolean generateRandomInputs) {
         this.random = generateRandomInputs;
         this.currentInputTickCounter = 0;
+        this.inputId = 0;
         this.inputs = new LinkedList<>();
 
         this.rightTexture = new Texture("right_arrow_pixelated.png");
         this.leftTexture = new Texture("left_arrow_pixelated_blue.png");
+        this.jumpRightTexture = new Texture("right_arrow_jump.png");
+        this.jumpLeftTexture = new Texture("left_arrow_jump.png");
         this.bordersTexture = new Texture("borders.png");
 
         if (generateRandomInputs) {
@@ -47,20 +53,26 @@ public class InputSequencer {
     private Input generateRandomInput() {
         // TODO Better random generation for input types
         // TODO Jump cooldown
-        return new Input(InputType.getRandom(), UNIT_MOVEMENT_TICKS);
+        inputId++;
+        return new Input(InputType.getRandom(), UNIT_MOVEMENT_TICKS, inputId);
     }
 
-    public void addInput(Input input) {
+    private void addInput(Input input) {
         inputs.add(input);
     }
 
-    public void advance() {
+    public void addInput(InputType type) {
+        inputId++;
+        inputs.add(new Input(type, UNIT_MOVEMENT_TICKS, inputId));
+    }
+
+    public void advance(boolean allowTransition) {
         if (inputs.size() == 0) return;
 
-        currentInputTickCounter++;
-
-        if (currentInputTickCounter >= inputs.get(0).ticks) {
-            final var removedInput = inputs.removeFirst();
+        if (currentInputTickCounter < inputs.get(0).ticks) {
+            currentInputTickCounter++;
+        } else if (allowTransition) {
+            inputs.removeFirst();
             currentInputTickCounter = 0;
         }
         if (random) {
@@ -68,10 +80,10 @@ public class InputSequencer {
         }
     }
 
-    public InputType getInput() {
-        if (inputs.size() == 0) return InputType.Idle;
+    public Input getInput() {
+        if (inputs.size() == 0) return FAKE_IDLE_INPUT;
 
-        return inputs.get(0).type;
+        return inputs.get(0);
     }
 
     public void render(float deltaTime, Camera camera, SpriteBatch batch) {
@@ -82,25 +94,43 @@ public class InputSequencer {
         // TODO Animate
         for (int i = 0; i < QUEUE_INPUTS_RENDER_COUNT && i < inputs.size(); i++) {
             final var input = inputs.get(i);
-            switch (input.type) {
-                case Left -> {
-                    batch.draw(leftTexture, renderX, renderY, QUEUE_INPUT_RENDER_WIDTH, QUEUE_RENDER_HEIGHT);
-                }
-                case Right -> {
-                    batch.draw(rightTexture, renderX, renderY, QUEUE_INPUT_RENDER_WIDTH, QUEUE_RENDER_HEIGHT);
-                }
-                case Idle -> {
-                }
+            if (input.type != InputType.Idle) {
+                batch.draw(getInputTexture(input.type), renderX, renderY, QUEUE_INPUT_RENDER_WIDTH, QUEUE_RENDER_HEIGHT);
             }
             renderX += QUEUE_INPUT_RENDER_WIDTH;
         }
         batch.draw(bordersTexture, startX, renderY, QUEUE_INPUT_RENDER_WIDTH, QUEUE_RENDER_HEIGHT);
     }
 
-    public record Input(InputType type, int ticks) {
+    // TODO Move
+    private Texture getInputTexture(InputType type) {
+        switch (type) {
+            case Left -> {
+                return leftTexture;
+            }
+            case Right -> {
+                return rightTexture;
+            }
+            case JumpLeft -> {
+                return jumpLeftTexture;
+            }
+            case JumpRight -> {
+                return jumpRightTexture;
+            }
+            case Idle -> {
+            }
+        }
+        return null;
+    }
+
+    public record Input(InputType type, int ticks, int id) {
         @Override
         public String toString() {
-            return "Input{" + "type=" + type + ", ticks=" + ticks + '}';
+            return "Input{" +
+                "type=" + type +
+                ", ticks=" + ticks +
+                ", id=" + id +
+                '}';
         }
     }
 }
