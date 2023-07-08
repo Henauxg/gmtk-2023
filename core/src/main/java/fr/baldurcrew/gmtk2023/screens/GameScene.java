@@ -80,7 +80,12 @@ public class GameScene implements Scene {
                 tilemap.setTile(tilePos, TileType.Block);
             }
             case Block -> {
-
+                final var index = placedBlocks.indexOf(tilePos);
+                if (index >= 0) {
+                    // Refresh the block in the FIFO
+                    placedBlocks.remove(index);
+                    placedBlocks.add(tilePos);
+                }
             }
         }
     }
@@ -115,7 +120,6 @@ public class GameScene implements Scene {
         tilemap.render(deltaTime, game.spriteBatch);
         // TODO Render green blinking block under cursor ? (wont work on phones)
         // TODO + Red blinking block for the next block that will disappear
-        // TODO Could refresh a block in the FIFO by touching it again
         for (int i = 0; i < placedBlocks.size(); i++) {
             final var worldPos = tilemap.getWorldPosition(placedBlocks.get(i));
             numericRenderer.renderNumber(game.spriteBatch, i + 1, worldPos, PLACED_BLOCK_NUMBER_SIZE);
