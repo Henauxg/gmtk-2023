@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
+import com.github.xpenatan.imgui.core.ImGui;
 import fr.baldurcrew.gmtk2023.Constants;
 import fr.baldurcrew.gmtk2023.CoreGame;
 import fr.baldurcrew.gmtk2023.inputs.InputSequencer;
@@ -11,6 +12,7 @@ import fr.baldurcrew.gmtk2023.inputs.InputType;
 import fr.baldurcrew.gmtk2023.level.tiles.Tilemap;
 import fr.baldurcrew.gmtk2023.level.tiles.types.TileType;
 import fr.baldurcrew.gmtk2023.npc.Npc;
+import fr.baldurcrew.gmtk2023.physics.WorldContactListener;
 import fr.baldurcrew.gmtk2023.utils.NumericRenderer;
 import fr.baldurcrew.gmtk2023.utils.Utils;
 
@@ -25,6 +27,7 @@ public class GameScene implements Scene {
     private final Tilemap tilemap;
     private final InputSequencer inputSequencer;
     private final NumericRenderer numericRenderer;
+    private final WorldContactListener worldContactListener;
     private Npc npc;
     private LinkedList<Tilemap.TilePosition> placedBlocks;
     private boolean paused;
@@ -35,30 +38,32 @@ public class GameScene implements Scene {
         this.numericRenderer = new NumericRenderer();
 
         this.world = new World(new Vector2(0, Constants.GRAVITY_VALUE), true);
+        this.worldContactListener = new WorldContactListener();
+        this.world.setContactListener(worldContactListener);
         this.inputSequencer = new InputSequencer(false);
         this.tilemap = new Tilemap(world, Constants.TILE_SIZE.cpy().scl(-1f), Constants.TILE_SIZE.cpy(), Math.round(Constants.VIEWPORT_WIDTH / Constants.TILE_SIZE.x) + 2, Math.round(Constants.VIEWPORT_HEIGHT / Constants.TILE_SIZE.y) + 2);
         placedBlocks = new LinkedList<>();
         this.npc = new Npc(world, tilemap.getWorldPosition(14, 8));
+        worldContactListener.addListener(npc);
 
-        tilemap.setTile(tilemap.getValidTilePosition(13, 7), TileType.Block);
-        tilemap.setTile(tilemap.getValidTilePosition(14, 7), TileType.Block);
-        tilemap.setTile(tilemap.getValidTilePosition(15, 7), TileType.Block);
-        tilemap.setTile(tilemap.getValidTilePosition(16, 7), TileType.Block);
-
-        int tickFactor = 2;
-        for (int i = 0; i < 10; i++) {
-            inputSequencer.addInput(new InputSequencer.Input(InputType.Idle, InputSequencer.UNIT_MOVEMENT_TICKS));
-            inputSequencer.addInput(new InputSequencer.Input(InputType.Left, InputSequencer.UNIT_MOVEMENT_TICKS));
-            inputSequencer.addInput(new InputSequencer.Input(InputType.Idle, InputSequencer.UNIT_MOVEMENT_TICKS));
-            inputSequencer.addInput(new InputSequencer.Input(InputType.Idle, InputSequencer.UNIT_MOVEMENT_TICKS));
-            inputSequencer.addInput(new InputSequencer.Input(InputType.Right, InputSequencer.UNIT_MOVEMENT_TICKS));
-            inputSequencer.addInput(new InputSequencer.Input(InputType.Idle, InputSequencer.UNIT_MOVEMENT_TICKS));
-            inputSequencer.addInput(new InputSequencer.Input(InputType.Idle, InputSequencer.UNIT_MOVEMENT_TICKS));
-            inputSequencer.addInput(new InputSequencer.Input(InputType.Left, InputSequencer.UNIT_MOVEMENT_TICKS));
-            inputSequencer.addInput(new InputSequencer.Input(InputType.Idle, InputSequencer.UNIT_MOVEMENT_TICKS));
-            inputSequencer.addInput(new InputSequencer.Input(InputType.Idle, InputSequencer.UNIT_MOVEMENT_TICKS));
-            inputSequencer.addInput(new InputSequencer.Input(InputType.Right, InputSequencer.UNIT_MOVEMENT_TICKS));
+        for (int i = 1; i < 28; i++) {
+            tilemap.setTile(tilemap.getValidTilePosition(i, 7), TileType.Block);
         }
+
+//        int tickFactor = 2;
+//        for (int i = 0; i < 10; i++) {
+//            inputSequencer.addInput(new InputSequencer.Input(InputType.Idle, InputSequencer.UNIT_MOVEMENT_TICKS));
+//            inputSequencer.addInput(new InputSequencer.Input(InputType.Left, InputSequencer.UNIT_MOVEMENT_TICKS));
+//            inputSequencer.addInput(new InputSequencer.Input(InputType.Idle, InputSequencer.UNIT_MOVEMENT_TICKS));
+//            inputSequencer.addInput(new InputSequencer.Input(InputType.Idle, InputSequencer.UNIT_MOVEMENT_TICKS));
+//            inputSequencer.addInput(new InputSequencer.Input(InputType.Right, InputSequencer.UNIT_MOVEMENT_TICKS));
+//            inputSequencer.addInput(new InputSequencer.Input(InputType.Idle, InputSequencer.UNIT_MOVEMENT_TICKS));
+//            inputSequencer.addInput(new InputSequencer.Input(InputType.Idle, InputSequencer.UNIT_MOVEMENT_TICKS));
+//            inputSequencer.addInput(new InputSequencer.Input(InputType.Left, InputSequencer.UNIT_MOVEMENT_TICKS));
+//            inputSequencer.addInput(new InputSequencer.Input(InputType.Idle, InputSequencer.UNIT_MOVEMENT_TICKS));
+//            inputSequencer.addInput(new InputSequencer.Input(InputType.Idle, InputSequencer.UNIT_MOVEMENT_TICKS));
+//            inputSequencer.addInput(new InputSequencer.Input(InputType.Right, InputSequencer.UNIT_MOVEMENT_TICKS));
+//        }
     }
 
     @Override
@@ -105,7 +110,7 @@ public class GameScene implements Scene {
     public void update(float timeStep) {
         if (paused) return;
 
-        inputSequencer.advance();
+        inputSequencer.advance(npc.isTouchingGround());
         final var input = inputSequencer.getInput();
         npc.update(input);
 
@@ -135,6 +140,28 @@ public class GameScene implements Scene {
         if (game.debugMode) {
             game.debugRenderer.render(world, game.camera.combined);
         }
+
+        renderUi();
+    }
+
+    private void renderUi() {
+        ImGui.Begin("Debug");
+        if (ImGui.Button("Idle")) {
+            inputSequencer.addInput(InputType.Idle);
+        }
+        if (ImGui.Button("Right")) {
+            inputSequencer.addInput(InputType.Right);
+        }
+        if (ImGui.Button("Left")) {
+            inputSequencer.addInput(InputType.Left);
+        }
+        if (ImGui.Button("Jump Right")) {
+            inputSequencer.addInput(InputType.JumpRight);
+        }
+        if (ImGui.Button("Jump left")) {
+            inputSequencer.addInput(InputType.JumpLeft);
+        }
+        ImGui.End();
     }
 
     @Override
