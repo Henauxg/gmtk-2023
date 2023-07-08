@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
+import com.badlogic.gdx.utils.Disposable;
 import fr.baldurcrew.gmtk2023.inputs.InputSequencer;
 import fr.baldurcrew.gmtk2023.physics.ContactHandler;
 import fr.baldurcrew.gmtk2023.physics.FixtureContact;
@@ -12,13 +13,14 @@ import fr.baldurcrew.gmtk2023.physics.FixtureContact;
 import java.util.HashSet;
 import java.util.Set;
 
-public class Npc implements ContactHandler {
+public class Npc implements ContactHandler, Disposable {
     public static final float NPC_DENSITY = 2f;
     public static final float NPC_FRICTION = 0.25f;
     public static final float NPC_RESTITUTION = 0.2f;
     private static final float MAX_NPC_VELOCITY_X = 2f;
     private static final float JUMP_IMPULSE_Y = 5.5f;
     private final Body body;
+    private final World world;
     private Animation<TextureRegion> animation;
     private float animationTimer;
     private NpcAnimation currentAnimation;
@@ -29,6 +31,7 @@ public class Npc implements ContactHandler {
     private boolean shouldFlipX;
 
     public Npc(World world, Vector2 position) {
+        this.world = world;
         this.currentAnimation = NpcAnimation.Idle;
         this.previousInputId = 0;
         this.previousAnimation = currentAnimation;
@@ -177,5 +180,10 @@ public class Npc implements ContactHandler {
     @Override
     public void handlePreSolve(Contact contact, FixtureContact fixtures) {
 
+    }
+
+    @Override
+    public void dispose() {
+        world.destroyBody(body);
     }
 }
