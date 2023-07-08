@@ -1,7 +1,6 @@
 package fr.baldurcrew.gmtk2023.inputs;
 
 import com.badlogic.gdx.graphics.Camera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import fr.baldurcrew.gmtk2023.Constants;
 
@@ -18,11 +17,6 @@ public class InputSequencer {
     private static final float QUEUE_INPUT_RENDER_WIDTH = QUEUE_RENDER_WIDTH / QUEUE_INPUTS_RENDER_COUNT;
     private static final Input FAKE_IDLE_INPUT = new Input(InputType.Idle, 0);
     private final boolean random;
-    private final Texture rightTexture;
-    private final Texture leftTexture;
-    private final Texture bordersTexture;
-    private final Texture jumpRightTexture;
-    private final Texture jumpLeftTexture;
     private LinkedList<Input> inputs;
     private int currentInputTickCounter;
     private int inputId;
@@ -32,12 +26,6 @@ public class InputSequencer {
         this.currentInputTickCounter = 0;
         this.inputId = 0;
         this.inputs = new LinkedList<>();
-
-        this.rightTexture = new Texture("inputs/right_arrow.png");
-        this.leftTexture = new Texture("inputs/left_arrow_.png");
-        this.jumpRightTexture = new Texture("inputs/right_arrow_jump.png");
-        this.jumpLeftTexture = new Texture("inputs/left_arrow_jump.png");
-        this.bordersTexture = new Texture("inputs/borders.png");
 
         if (generateRandomInputs) {
             fillInputQueue(QUEUE_INPUTS_RENDER_COUNT);
@@ -101,32 +89,11 @@ public class InputSequencer {
         for (int i = 0; i < QUEUE_INPUTS_RENDER_COUNT && i < inputs.size(); i++) {
             final var input = inputs.get(i);
             if (input.type != InputType.Idle) {
-                batch.draw(getInputTexture(input.type), renderX, renderY, QUEUE_INPUT_RENDER_WIDTH, QUEUE_RENDER_HEIGHT);
+                batch.draw(InputResources.getInstance().getTexture(input.type), renderX, renderY, QUEUE_INPUT_RENDER_WIDTH, QUEUE_RENDER_HEIGHT);
             }
             renderX += QUEUE_INPUT_RENDER_WIDTH;
         }
-        batch.draw(bordersTexture, startX, renderY, QUEUE_INPUT_RENDER_WIDTH, QUEUE_RENDER_HEIGHT);
-    }
-
-    // TODO Move
-    private Texture getInputTexture(InputType type) {
-        switch (type) {
-            case Left -> {
-                return leftTexture;
-            }
-            case Right -> {
-                return rightTexture;
-            }
-            case JumpLeft -> {
-                return jumpLeftTexture;
-            }
-            case JumpRight -> {
-                return jumpRightTexture;
-            }
-            case Idle -> {
-            }
-        }
-        return null;
+        batch.draw(InputResources.getInstance().bordersTexture, startX, renderY, QUEUE_INPUT_RENDER_WIDTH, QUEUE_RENDER_HEIGHT);
     }
 
     public record Input(InputType type, int id) {
