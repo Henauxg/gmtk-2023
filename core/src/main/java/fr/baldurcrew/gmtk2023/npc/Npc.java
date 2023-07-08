@@ -3,22 +3,26 @@ package fr.baldurcrew.gmtk2023.npc;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
+import fr.baldurcrew.gmtk2023.inputs.InputType;
 
 public class Npc {
     public static final float NPC_DENSITY = 2f;
     public static final float NPC_FRICTION = 0.25f;
     public static final float NPC_RESTITUTION = 0.2f;
+    private static final float MAX_NPC_VELOCITY_X = 5f;
+
     private final Body body;
     private Animation<TextureRegion> animation;
     private float animationTimer;
-    private NpcAction currentAction;
-    private NpcAction previousAction;
+    private NpcAnimation currentAnimation;
+    private NpcAnimation previousAnimation;
 
     public Npc(World world, float xWorld, float yWorld) {
-        this.currentAction = NpcAction.Idle;
-        this.previousAction = currentAction;
-        this.animation = NpcResources.getInstance().getAnimation(currentAction);
+        this.currentAnimation = NpcAnimation.Idle;
+        this.previousAnimation = currentAnimation;
+        this.animation = NpcResources.getInstance().getAnimation(currentAnimation);
         this.animationTimer = 0f;
         this.body = createBody(world, xWorld, yWorld, NPC_DENSITY, NPC_FRICTION, NPC_RESTITUTION);
     }
@@ -52,11 +56,11 @@ public class Npc {
     }
 
     public void render(float deltaTime, SpriteBatch batch) {
-        if (currentAction != previousAction) {
-            animation = NpcResources.getInstance().getAnimation(currentAction);
+        if (currentAnimation != previousAnimation) {
+            animation = NpcResources.getInstance().getAnimation(currentAnimation);
             animationTimer = 0f;
         }
-        previousAction = currentAction;
+        previousAnimation = currentAnimation;
 
         animationTimer += deltaTime;
         // TODO Not all animations are looping
@@ -67,7 +71,25 @@ public class Npc {
         batch.draw(currentFrame, renderX, renderY, NpcResources.NPC_RENDER_WIDTH, NpcResources.NPC_RENDER_HEIGHT);
     }
 
-    public void update() {
+    public void update(InputType input) {
+        Vector2 velocity = body.getLinearVelocity();
 
+        float desiredVelocityX = 0f;
+        switch (input) {
+            case Left -> {
+                desiredVelocityX = -MAX_NPC_VELOCITY_X;
+            }
+            case Right -> {
+                desiredVelocityX = MAX_NPC_VELOCITY_X;
+            }
+            case Idle -> {
+                desiredVelocityX = 0;
+            }
+        }
+
+        float deltaVelX = desiredVelocityX - velocity.x;
+        float impulseX = body.getMass() * deltaVelX;
+
+        body.applyLinearImpulse(new Vector2(impulseX, 0f), body.getWorldCenter(), true);
     }
 }
