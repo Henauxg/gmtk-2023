@@ -65,5 +65,8 @@ public class WorldContactListener implements ContactListener {
     }
 
 
+    public void clear() {
+        this.contactHandlers.clear();
+    }
 }
 
