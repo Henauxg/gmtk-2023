@@ -26,7 +26,7 @@ public class MainMenuScene implements Scene {
     }
 
     @Override
-    public void update() {
+    public void update(float timeStep) {
 
     }
 

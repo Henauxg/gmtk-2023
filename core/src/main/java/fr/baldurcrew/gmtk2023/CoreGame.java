@@ -87,7 +87,7 @@ public class CoreGame extends Game implements InputProcessor {
         fixedTimeStepAccumulator += frameTime;
         while (fixedTimeStepAccumulator >= Constants.TIME_STEP) {
             handleInputs();
-            if (scene != null) scene.update();
+            if (scene != null) scene.update(Constants.TIME_STEP);
             fixedTimeStepAccumulator -= Constants.TIME_STEP;
         }
     }

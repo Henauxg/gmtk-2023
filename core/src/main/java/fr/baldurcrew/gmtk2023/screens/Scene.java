@@ -7,5 +7,5 @@ public interface Scene extends Screen {
 
     void handleDebugInputs();
 
-    void update();
+    void update(float timeStep);
 }

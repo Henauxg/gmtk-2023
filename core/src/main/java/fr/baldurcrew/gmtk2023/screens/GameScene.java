@@ -6,6 +6,8 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.github.xpenatan.imgui.core.ImGui;
 import fr.baldurcrew.gmtk2023.Constants;
 import fr.baldurcrew.gmtk2023.CoreGame;
+import fr.baldurcrew.gmtk2023.inputs.InputSequencer;
+import fr.baldurcrew.gmtk2023.inputs.InputType;
 import fr.baldurcrew.gmtk2023.level.tiles.Tilemap;
 import fr.baldurcrew.gmtk2023.level.tiles.types.TileType;
 import fr.baldurcrew.gmtk2023.npc.Npc;
@@ -19,6 +21,7 @@ public class GameScene implements Scene {
     private final CoreGame game;
     private final World world;
     private final Tilemap tilemap;
+    private final InputSequencer inputSequencer;
     private Npc npc;
     private LinkedList<Tilemap.TilePosition> placedBlocks;
 
@@ -27,9 +30,14 @@ public class GameScene implements Scene {
 
         world = new World(new Vector2(0, Constants.GRAVITY_VALUE), true);
         this.npc = new Npc(world, Constants.VIEWPORT_WIDTH / 2, Constants.VIEWPORT_HEIGHT / 2f);
+        this.inputSequencer = new InputSequencer();
 
         this.tilemap = new Tilemap(world, Constants.TILE_SIZE.cpy().scl(-1f), Constants.TILE_SIZE.cpy(), Math.round(Constants.VIEWPORT_WIDTH / Constants.TILE_SIZE.x) + 2, Math.round(Constants.VIEWPORT_HEIGHT / Constants.TILE_SIZE.y) + 2);
         placedBlocks = new LinkedList<>();
+
+        tilemap.setTile(tilemap.getValidTilePosition(14, 7), TileType.Block);
+        tilemap.setTile(tilemap.getValidTilePosition(15, 7), TileType.Block);
+        tilemap.setTile(tilemap.getValidTilePosition(16, 7), TileType.Block);
     }
 
     @Override
@@ -65,7 +73,19 @@ public class GameScene implements Scene {
     }
 
     @Override
-    public void update() {
+    public void update(float timeStep) {
+        inputSequencer.advance();
+        final var input = inputSequencer.getInput();
+        for (int i = 0; i < 10; i++) {
+            inputSequencer.addInput(new InputSequencer.Input(InputType.Left, 15));
+            inputSequencer.addInput(new InputSequencer.Input(InputType.Right, 15));
+            inputSequencer.addInput(new InputSequencer.Input(InputType.Idle, 40));
+            inputSequencer.addInput(new InputSequencer.Input(InputType.Left, 15));
+            inputSequencer.addInput(new InputSequencer.Input(InputType.Right, 15));
+            inputSequencer.addInput(new InputSequencer.Input(InputType.Idle, 40));
+        }
+        npc.update(input);
+
         world.step(Constants.TIME_STEP, Constants.VELOCITY_ITERATIONS, Constants.POSITION_ITERATIONS);
     }
 
@@ -80,6 +100,7 @@ public class GameScene implements Scene {
         game.spriteBatch.setProjectionMatrix(game.camera.combined);
         tilemap.render(deltaTime, game.spriteBatch);
         npc.render(deltaTime, game.spriteBatch);
+        inputSequencer.render(deltaTime, game.spriteBatch);
         game.spriteBatch.end();
 
         ImGui.ShowDemoWindow();
