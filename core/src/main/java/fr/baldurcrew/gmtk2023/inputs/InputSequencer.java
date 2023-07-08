@@ -10,12 +10,13 @@ import java.util.LinkedList;
 public class InputSequencer {
 
     public static final int UNIT_MOVEMENT_TICKS = 30;
+    public static final int UNIT_JUMP_TICKS = 60;
 
     private static final float QUEUE_RENDER_WIDTH = Constants.VIEWPORT_WIDTH / 2f;
     private static final float QUEUE_RENDER_HEIGHT = 1.f;
     private static final int QUEUE_INPUTS_RENDER_COUNT = 10;
     private static final float QUEUE_INPUT_RENDER_WIDTH = QUEUE_RENDER_WIDTH / QUEUE_INPUTS_RENDER_COUNT;
-    private static final Input FAKE_IDLE_INPUT = new Input(InputType.Idle, UNIT_MOVEMENT_TICKS, 0);
+    private static final Input FAKE_IDLE_INPUT = new Input(InputType.Idle, 0);
     private final boolean random;
     private final Texture rightTexture;
     private final Texture leftTexture;
@@ -52,9 +53,9 @@ public class InputSequencer {
 
     private Input generateRandomInput() {
         // TODO Better random generation for input types
-        // TODO Jump cooldown
         inputId++;
-        return new Input(InputType.getRandom(), UNIT_MOVEMENT_TICKS, inputId);
+        final var type = InputType.getRandom();
+        return new Input(type, inputId);
     }
 
     private void addInput(Input input) {
@@ -63,15 +64,16 @@ public class InputSequencer {
 
     public void addInput(InputType type) {
         inputId++;
-        inputs.add(new Input(type, UNIT_MOVEMENT_TICKS, inputId));
+        inputs.add(new Input(type, inputId));
     }
 
     public void advance(boolean allowTransition) {
         if (inputs.size() == 0) return;
 
-        if (currentInputTickCounter < inputs.get(0).ticks) {
+        if (currentInputTickCounter <= inputs.get(0).type.ticks) {
             currentInputTickCounter++;
-        } else if (allowTransition) {
+        }
+        if (currentInputTickCounter >= inputs.get(0).type.ticks && allowTransition) {
             inputs.removeFirst();
             currentInputTickCounter = 0;
         }
@@ -81,7 +83,11 @@ public class InputSequencer {
     }
 
     public Input getInput() {
+        // No more moves in stock
         if (inputs.size() == 0) return FAKE_IDLE_INPUT;
+
+        // The current move has ended, but we have not been allowed to transition to the next one yet
+        if (currentInputTickCounter > inputs.get(0).type.ticks) return FAKE_IDLE_INPUT;
 
         return inputs.get(0);
     }
@@ -123,12 +129,11 @@ public class InputSequencer {
         return null;
     }
 
-    public record Input(InputType type, int ticks, int id) {
+    public record Input(InputType type, int id) {
         @Override
         public String toString() {
             return "Input{" +
                 "type=" + type +
-                ", ticks=" + ticks +
                 ", id=" + id +
                 '}';
         }
