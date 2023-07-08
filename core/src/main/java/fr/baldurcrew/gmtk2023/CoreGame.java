@@ -40,7 +40,8 @@ public class CoreGame extends Game implements InputProcessor {
         camera.setToOrtho(false, Constants.VIEWPORT_WIDTH, Constants.VIEWPORT_HEIGHT);
 
         imGuiWrapper = new ImGuiWrapper();
-        Gdx.input.setInputProcessor(this);
+        // TODO Temporary toggle for camera zoom versus ImGui
+//        Gdx.input.setInputProcessor(this);
 
         Box2D.init();
         debugRenderer = new Box2DDebugRenderer();
