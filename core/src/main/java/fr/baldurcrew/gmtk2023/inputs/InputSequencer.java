@@ -52,6 +52,7 @@ public class InputSequencer {
 
     private Input generateRandomInput() {
         // TODO Better random generation for input types
+        // TODO Jump cooldown
         return new Input(InputType.getRandom(), MathUtils.random(MIN_INPUT_DURATION_TICKS, MAX_INPUT_DURATION_TICKS));
     }
 

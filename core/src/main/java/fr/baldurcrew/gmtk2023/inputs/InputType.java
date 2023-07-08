@@ -5,6 +5,8 @@ import com.badlogic.gdx.math.MathUtils;
 public enum InputType {
     Left,
     Right,
+    JumpLeft,
+    JumpRight,
     Idle;
 
     public static InputType getRandom() {

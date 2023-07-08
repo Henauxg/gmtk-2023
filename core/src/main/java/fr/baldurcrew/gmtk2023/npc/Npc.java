@@ -12,15 +12,18 @@ public class Npc {
     public static final float NPC_FRICTION = 0.25f;
     public static final float NPC_RESTITUTION = 0.2f;
     private static final float MAX_NPC_VELOCITY_X = 2f;
+    private static final float JUMP_IMPULSE_Y = 4f;
 
     private final Body body;
     private Animation<TextureRegion> animation;
     private float animationTimer;
     private NpcAnimation currentAnimation;
     private NpcAnimation previousAnimation;
+    private InputType previousInput;
 
     public Npc(World world, float xWorld, float yWorld) {
         this.currentAnimation = NpcAnimation.Idle;
+        this.previousInput = InputType.Idle;
         this.previousAnimation = currentAnimation;
         this.animation = NpcResources.getInstance().getAnimation(currentAnimation);
         this.animationTimer = 0f;
@@ -75,21 +78,40 @@ public class Npc {
         Vector2 velocity = body.getLinearVelocity();
 
         float desiredVelocityX = 0f;
+        float impulseY = 0f;
         switch (input) {
             case Left -> {
                 desiredVelocityX = -MAX_NPC_VELOCITY_X;
+                currentAnimation = NpcAnimation.Walk;
             }
             case Right -> {
                 desiredVelocityX = MAX_NPC_VELOCITY_X;
+                currentAnimation = NpcAnimation.Walk;
+            }
+            case JumpLeft -> {
+                if (previousInput != input) {
+                    impulseY = JUMP_IMPULSE_Y;
+                }
+                desiredVelocityX = -MAX_NPC_VELOCITY_X / 2f;
+                currentAnimation = NpcAnimation.Jump;
+            }
+            case JumpRight -> {
+                if (previousInput != input) {
+                    impulseY = JUMP_IMPULSE_Y;
+                }
+                desiredVelocityX = MAX_NPC_VELOCITY_X / 2f;
+                currentAnimation = NpcAnimation.Jump;
             }
             case Idle -> {
                 desiredVelocityX = 0;
+                currentAnimation = NpcAnimation.Idle;
             }
         }
+        previousInput = input;
 
         float deltaVelX = desiredVelocityX - velocity.x;
         float impulseX = body.getMass() * deltaVelX;
 
-        body.applyLinearImpulse(new Vector2(impulseX, 0f), body.getWorldCenter(), true);
+        body.applyLinearImpulse(new Vector2(impulseX, impulseY), body.getWorldCenter(), true);
     }
 }
