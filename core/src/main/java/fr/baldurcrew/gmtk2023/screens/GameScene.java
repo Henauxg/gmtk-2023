@@ -61,7 +61,8 @@ public class GameScene implements Scene {
     public void update(float timeStep) {
         if (paused) return;
 
-        level.update();
+        final var won = level.update();
+        // TODO Handle win state
     }
 
     @Override

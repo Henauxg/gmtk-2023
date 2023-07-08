@@ -11,6 +11,7 @@ import com.github.xpenatan.imgui.core.ImGui;
 import fr.baldurcrew.gmtk2023.Constants;
 import fr.baldurcrew.gmtk2023.inputs.InputSequencer;
 import fr.baldurcrew.gmtk2023.inputs.InputType;
+import fr.baldurcrew.gmtk2023.level.tiles.TileRect;
 import fr.baldurcrew.gmtk2023.level.tiles.Tilemap;
 import fr.baldurcrew.gmtk2023.level.tiles.types.TileType;
 import fr.baldurcrew.gmtk2023.npc.Npc;
@@ -34,15 +35,14 @@ public class Level implements Disposable {
 
     private final World world;
     private final WorldContactListener worldContactListener;
+    private TileRect endArea; // Optional
     private LinkedList<Tilemap.TilePosition> placedBlocks;
     private Tilemap tilemap;
     private InputSequencer inputSequencer;
     private Npc npc;
-    //    public final Rectangle endArea; // Optional
 
-    public Level(boolean isRandom, int startingTileX, int startingTileY) {
-//        this.tilemap = tilemap;
-        this.isRandom = isRandom;
+    private Level(boolean random, int startingTileX, int startingTileY) {
+        this.isRandom = random;
         this.startingTileX = startingTileX;
         this.startingTileY = startingTileY;
 
@@ -50,25 +50,32 @@ public class Level implements Disposable {
         this.worldContactListener = new WorldContactListener();
         this.world.setContactListener(worldContactListener);
 
-        this.placedBlocks = new LinkedList<>();
-        this.inputSequencer = new InputSequencer(isRandom);
-        this.tilemap = new Tilemap(world, Constants.TILE_SIZE.cpy().scl(-1f), Constants.TILE_SIZE.cpy(), Math.round(Constants.VIEWPORT_WIDTH / Constants.TILE_SIZE.x) + 2, Math.round(Constants.VIEWPORT_HEIGHT / Constants.TILE_SIZE.y) + 2);
-        this.npc = new Npc(world, tilemap.getWorldPosition(startingTileX, startingTileY));
-        worldContactListener.addListener(npc);
+        reset();
     }
 
-    public Level(boolean isRandom, int startingTileX, int startingTileY, int endZoneX1, int endZoneY1, int endZoneX2, int endZoneY2) {
-        this(isRandom, startingTileX, startingTileY);
-//        this.endArea = endArea;
+    public Level(int startingTileX, int startingTileY) {
+        this(true, startingTileX, startingTileY);
+        // TODO tilemap data;
+    }
+
+    public Level(int startingTileX, int startingTileY, TileRect endArea) {
+        this(false, startingTileX, startingTileY);
+        this.endArea = endArea;
     }
 
     public void reset() {
         this.placedBlocks = new LinkedList<>();
         this.inputSequencer = new InputSequencer(isRandom);
-        this.tilemap.dispose();
+
+        if (this.tilemap != null) {
+            this.tilemap.dispose();
+        }
         this.tilemap = new Tilemap(world, Constants.TILE_SIZE.cpy().scl(-1f), Constants.TILE_SIZE.cpy(), Math.round(Constants.VIEWPORT_WIDTH / Constants.TILE_SIZE.x) + 2, Math.round(Constants.VIEWPORT_HEIGHT / Constants.TILE_SIZE.y) + 2);
         worldContactListener.clear();
-        this.npc.dispose();
+
+        if (this.npc != null) {
+            this.npc.dispose();
+        }
         this.npc = new Npc(world, tilemap.getWorldPosition(startingTileX, startingTileY));
         worldContactListener.addListener(npc);
     }
@@ -123,12 +130,14 @@ public class Level implements Disposable {
         ImGui.End();
     }
 
-    public void update() {
+    public boolean update() {
         inputSequencer.advance(npc.isTouchingGround());
         final var input = inputSequencer.getInput();
         npc.update(input);
 
         world.step(Constants.TIME_STEP, Constants.VELOCITY_ITERATIONS, Constants.POSITION_ITERATIONS);
+
+        return tilemap.isInside(npc.getPosition(), endArea);
     }
 
     public void handleInputs() {

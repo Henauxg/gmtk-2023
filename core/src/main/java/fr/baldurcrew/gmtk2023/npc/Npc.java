@@ -186,4 +186,8 @@ public class Npc implements ContactHandler, Disposable {
     public void dispose() {
         world.destroyBody(body);
     }
+
+    public Vector2 getPosition() {
+        return body.getPosition();
+    }
 }

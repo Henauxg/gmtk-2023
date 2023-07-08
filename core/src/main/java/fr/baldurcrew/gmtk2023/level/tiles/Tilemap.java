@@ -115,6 +115,14 @@ public class Tilemap implements Disposable {
         return new Vector2(origin.x + i * tileSize.x + tileSize.x / 2f, origin.y + j * tileSize.y + tileSize.y / 2f);
     }
 
+    public boolean isInside(Vector2 worldPos, TileRect rect) {
+        final var tilePos = getValidTilePosition(worldPos);
+        if (tilePos != null) {
+            return rect.contains(tilePos);
+        }
+        return false;
+    }
+
     public record TilePosition(int i, int j) {
         protected Vector2 toWorld(Vector2 origin, Vector2 tileSize) {
             return new Vector2(origin.x + i * tileSize.x + tileSize.x / 2f, origin.y + j * tileSize.y + tileSize.y / 2f);
