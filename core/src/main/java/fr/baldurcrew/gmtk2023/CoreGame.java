@@ -3,9 +3,11 @@ package fr.baldurcrew.gmtk2023;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.physics.box2d.Box2D;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.utils.ScreenUtils;
@@ -16,7 +18,9 @@ import fr.baldurcrew.gmtk2023.screens.Scene;
 /**
  * {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms.
  */
-public class CoreGame extends Game {
+public class CoreGame extends Game implements InputProcessor {
+
+    private static final float CAMERA_ZOOM_SPEED = 0.08f;
 
     public SpriteBatch spriteBatch;
     public BitmapFont font;
@@ -36,6 +40,7 @@ public class CoreGame extends Game {
         camera.setToOrtho(false, Constants.VIEWPORT_WIDTH, Constants.VIEWPORT_HEIGHT);
 
         imGuiWrapper = new ImGuiWrapper();
+        Gdx.input.setInputProcessor(this);
 
         Box2D.init();
         debugRenderer = new Box2DDebugRenderer();
@@ -108,5 +113,46 @@ public class CoreGame extends Game {
         spriteBatch.dispose();
         font.dispose();
         ImGui.dispose();
+    }
+
+    @Override
+    public boolean keyDown(int keycode) {
+        return false;
+    }
+
+    @Override
+    public boolean keyUp(int keycode) {
+        return false;
+    }
+
+    @Override
+    public boolean keyTyped(char character) {
+        return false;
+    }
+
+    @Override
+    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+        return false;
+    }
+
+    @Override
+    public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+        return false;
+    }
+
+    @Override
+    public boolean touchDragged(int screenX, int screenY, int pointer) {
+        return false;
+    }
+
+    @Override
+    public boolean mouseMoved(int screenX, int screenY) {
+        return false;
+    }
+
+    @Override
+    public boolean scrolled(float amountX, float amountY) {
+        camera.zoom = MathUtils.clamp(camera.zoom + CAMERA_ZOOM_SPEED * amountY, 0.5f, 4.f);
+        return false;
     }
 }
