@@ -7,6 +7,7 @@ import com.badlogic.gdx.physics.box2d.World;
 import fr.baldurcrew.gmtk2023.Constants;
 import fr.baldurcrew.gmtk2023.CoreGame;
 import fr.baldurcrew.gmtk2023.inputs.InputSequencer;
+import fr.baldurcrew.gmtk2023.inputs.InputType;
 import fr.baldurcrew.gmtk2023.level.tiles.Tilemap;
 import fr.baldurcrew.gmtk2023.level.tiles.types.TileType;
 import fr.baldurcrew.gmtk2023.npc.Npc;
@@ -34,27 +35,30 @@ public class GameScene implements Scene {
         this.numericRenderer = new NumericRenderer();
 
         this.world = new World(new Vector2(0, Constants.GRAVITY_VALUE), true);
-        this.npc = new Npc(world, Constants.VIEWPORT_WIDTH / 2, Constants.VIEWPORT_HEIGHT / 2f);
-        this.inputSequencer = new InputSequencer(true);
-
+        this.inputSequencer = new InputSequencer(false);
         this.tilemap = new Tilemap(world, Constants.TILE_SIZE.cpy().scl(-1f), Constants.TILE_SIZE.cpy(), Math.round(Constants.VIEWPORT_WIDTH / Constants.TILE_SIZE.x) + 2, Math.round(Constants.VIEWPORT_HEIGHT / Constants.TILE_SIZE.y) + 2);
         placedBlocks = new LinkedList<>();
+        this.npc = new Npc(world, tilemap.getWorldPosition(14, 8));
 
         tilemap.setTile(tilemap.getValidTilePosition(13, 7), TileType.Block);
         tilemap.setTile(tilemap.getValidTilePosition(14, 7), TileType.Block);
         tilemap.setTile(tilemap.getValidTilePosition(15, 7), TileType.Block);
         tilemap.setTile(tilemap.getValidTilePosition(16, 7), TileType.Block);
 
-//        int tickFactor = 2;
-//        for (int i = 0; i < 10; i++) {
-//            inputSequencer.addInput(new InputSequencer.Input(InputType.Idle, 40 * tickFactor));
-//            inputSequencer.addInput(new InputSequencer.Input(InputType.Left, 20 * tickFactor));
-//            inputSequencer.addInput(new InputSequencer.Input(InputType.Idle, 20 * tickFactor));
-//            inputSequencer.addInput(new InputSequencer.Input(InputType.Right, 20 * tickFactor));
-//            inputSequencer.addInput(new InputSequencer.Input(InputType.Idle, 40 * tickFactor));
-//            inputSequencer.addInput(new InputSequencer.Input(InputType.Left, 20 * tickFactor));
-//            inputSequencer.addInput(new InputSequencer.Input(InputType.Right, 20 * tickFactor));
-//        }
+        int tickFactor = 2;
+        for (int i = 0; i < 10; i++) {
+            inputSequencer.addInput(new InputSequencer.Input(InputType.Idle, InputSequencer.UNIT_MOVEMENT_TICKS));
+            inputSequencer.addInput(new InputSequencer.Input(InputType.Left, InputSequencer.UNIT_MOVEMENT_TICKS));
+            inputSequencer.addInput(new InputSequencer.Input(InputType.Idle, InputSequencer.UNIT_MOVEMENT_TICKS));
+            inputSequencer.addInput(new InputSequencer.Input(InputType.Idle, InputSequencer.UNIT_MOVEMENT_TICKS));
+            inputSequencer.addInput(new InputSequencer.Input(InputType.Right, InputSequencer.UNIT_MOVEMENT_TICKS));
+            inputSequencer.addInput(new InputSequencer.Input(InputType.Idle, InputSequencer.UNIT_MOVEMENT_TICKS));
+            inputSequencer.addInput(new InputSequencer.Input(InputType.Idle, InputSequencer.UNIT_MOVEMENT_TICKS));
+            inputSequencer.addInput(new InputSequencer.Input(InputType.Left, InputSequencer.UNIT_MOVEMENT_TICKS));
+            inputSequencer.addInput(new InputSequencer.Input(InputType.Idle, InputSequencer.UNIT_MOVEMENT_TICKS));
+            inputSequencer.addInput(new InputSequencer.Input(InputType.Idle, InputSequencer.UNIT_MOVEMENT_TICKS));
+            inputSequencer.addInput(new InputSequencer.Input(InputType.Right, InputSequencer.UNIT_MOVEMENT_TICKS));
+        }
     }
 
     @Override

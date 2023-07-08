@@ -21,19 +21,19 @@ public class Npc {
     private NpcAnimation previousAnimation;
     private InputType previousInput;
 
-    public Npc(World world, float xWorld, float yWorld) {
+    public Npc(World world, Vector2 position) {
         this.currentAnimation = NpcAnimation.Idle;
         this.previousInput = InputType.Idle;
         this.previousAnimation = currentAnimation;
         this.animation = NpcResources.getInstance().getAnimation(currentAnimation);
         this.animationTimer = 0f;
-        this.body = createBody(world, xWorld, yWorld, NPC_DENSITY, NPC_FRICTION, NPC_RESTITUTION);
+        this.body = createBody(world, position, NPC_DENSITY, NPC_FRICTION, NPC_RESTITUTION);
     }
 
-    private Body createBody(World world, float centerX, float centerY, float density, float friction, float restitution) {
+    private Body createBody(World world, Vector2 position, float density, float friction, float restitution) {
         final BodyDef bodyDef = new BodyDef();
         bodyDef.type = BodyDef.BodyType.DynamicBody;
-        bodyDef.position.set(centerX, centerY);
+        bodyDef.position.set(position.x, position.y);
         bodyDef.linearDamping = 0f;
         //bodyDef.angularDamping = 1f;
         bodyDef.fixedRotation = true;
