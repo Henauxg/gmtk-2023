@@ -17,7 +17,7 @@ public class Npc implements ContactHandler {
     public static final float NPC_FRICTION = 0.25f;
     public static final float NPC_RESTITUTION = 0.2f;
     private static final float MAX_NPC_VELOCITY_X = 2f;
-    private static final float JUMP_IMPULSE_Y = 6f;
+    private static final float JUMP_IMPULSE_Y = 5.5f;
     private final Body body;
     private Animation<TextureRegion> animation;
     private float animationTimer;
@@ -26,6 +26,7 @@ public class Npc implements ContactHandler {
     private int previousInputId;
     private Set<Fixture> contactGroundFixtures;
     private boolean touchingGround;
+    private boolean shouldFlipX;
 
     public Npc(World world, Vector2 position) {
         this.currentAnimation = NpcAnimation.Idle;
@@ -36,6 +37,7 @@ public class Npc implements ContactHandler {
         this.body = createBody(world, position, NPC_DENSITY, NPC_FRICTION, NPC_RESTITUTION);
         this.contactGroundFixtures = new HashSet<>();
         this.touchingGround = false;
+        this.shouldFlipX = false;
     }
 
     private Body createBody(World world, Vector2 position, float density, float friction, float restitution) {
@@ -88,9 +90,13 @@ public class Npc implements ContactHandler {
         }
         previousAnimation = currentAnimation;
 
+
         animationTimer += deltaTime;
         // TODO Not all animations are looping
         final var currentFrame = animation.getKeyFrame(animationTimer, true);
+        if ((shouldFlipX && !currentFrame.isFlipX() || (!shouldFlipX && currentFrame.isFlipX()))) {
+            currentFrame.flip(true, false);
+        }
 
         final float renderX = body.getPosition().x - NpcResources.NPC_RENDER_WIDTH / 2f;
         final float renderY = body.getPosition().y - NpcResources.NPC_RENDER_HEIGHT / 2f;
@@ -107,11 +113,13 @@ public class Npc implements ContactHandler {
         switch (input.type()) {
             case Left -> {
                 desiredVelocityX = -MAX_NPC_VELOCITY_X;
-                currentAnimation = NpcAnimation.Walk;
+                currentAnimation = NpcAnimation.Run;
+                shouldFlipX = true;
             }
             case Right -> {
                 desiredVelocityX = MAX_NPC_VELOCITY_X;
-                currentAnimation = NpcAnimation.Walk;
+                currentAnimation = NpcAnimation.Run;
+                shouldFlipX = false;
             }
             case JumpLeft -> {
                 if (previousInputId != input.id()) {
@@ -119,6 +127,7 @@ public class Npc implements ContactHandler {
                 }
                 desiredVelocityX = -MAX_NPC_VELOCITY_X / 2f;
                 currentAnimation = NpcAnimation.Jump;
+                shouldFlipX = true;
             }
             case JumpRight -> {
                 if (previousInputId != input.id()) {
@@ -126,6 +135,7 @@ public class Npc implements ContactHandler {
                 }
                 desiredVelocityX = MAX_NPC_VELOCITY_X / 2f;
                 currentAnimation = NpcAnimation.Jump;
+                shouldFlipX = false;
             }
             case Idle -> {
                 desiredVelocityX = 0;
