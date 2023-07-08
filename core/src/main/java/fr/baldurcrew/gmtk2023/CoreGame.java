@@ -58,6 +58,8 @@ public class CoreGame extends Game implements InputProcessor {
         ScreenUtils.clear(0.15f, 0.15f, 0.2f, 1f);
         camera.update();
 
+        handleInputs();
+
         // TODO Handle game speed
         final var multipliedDeltaTime = Gdx.graphics.getDeltaTime();
         doPhysicsStep(multipliedDeltaTime);
@@ -86,7 +88,6 @@ public class CoreGame extends Game implements InputProcessor {
         float frameTime = Math.min(deltaTime, Constants.MIN_TIME_STEP);
         fixedTimeStepAccumulator += frameTime;
         while (fixedTimeStepAccumulator >= Constants.TIME_STEP) {
-            handleInputs();
             if (scene != null) scene.update(Constants.TIME_STEP);
             fixedTimeStepAccumulator -= Constants.TIME_STEP;
         }
