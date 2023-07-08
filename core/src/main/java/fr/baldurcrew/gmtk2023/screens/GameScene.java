@@ -108,11 +108,12 @@ public class GameScene implements Scene {
         game.spriteBatch.begin();
         game.spriteBatch.setProjectionMatrix(game.camera.combined);
         tilemap.render(deltaTime, game.spriteBatch);
+        // TODO Render green blinking block under cursor ? (wont work on phones)
+        // + Red blinking block for the next block that will disappear
+
         npc.render(deltaTime, game.spriteBatch);
         inputSequencer.render(deltaTime, game.camera, game.spriteBatch);
         game.spriteBatch.end();
-
-//        ImGui.ShowDemoWindow();
 
         if (game.debugMode) {
             game.debugRenderer.render(world, game.camera.combined);
@@ -141,6 +142,7 @@ public class GameScene implements Scene {
 
     @Override
     public void dispose() {
-
+        world.dispose();
+        tilemap.dispose();
     }
 }
