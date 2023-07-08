@@ -17,7 +17,7 @@ public class Npc implements ContactHandler {
     public static final float NPC_FRICTION = 0.25f;
     public static final float NPC_RESTITUTION = 0.2f;
     private static final float MAX_NPC_VELOCITY_X = 2f;
-    private static final float JUMP_IMPULSE_Y = 4f;
+    private static final float JUMP_IMPULSE_Y = 6f;
     private final Body body;
     private Animation<TextureRegion> animation;
     private float animationTimer;
