@@ -11,7 +11,7 @@ public class Npc {
     public static final float NPC_DENSITY = 2f;
     public static final float NPC_FRICTION = 0.25f;
     public static final float NPC_RESTITUTION = 0.2f;
-    private static final float MAX_NPC_VELOCITY_X = 5f;
+    private static final float MAX_NPC_VELOCITY_X = 2f;
 
     private final Body body;
     private Animation<TextureRegion> animation;
