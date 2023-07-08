@@ -1,9 +1,9 @@
 package fr.baldurcrew.gmtk2023.screens;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
-import com.github.xpenatan.imgui.core.ImGui;
 import fr.baldurcrew.gmtk2023.Constants;
 import fr.baldurcrew.gmtk2023.CoreGame;
 import fr.baldurcrew.gmtk2023.inputs.InputSequencer;
@@ -24,9 +24,11 @@ public class GameScene implements Scene {
     private final InputSequencer inputSequencer;
     private Npc npc;
     private LinkedList<Tilemap.TilePosition> placedBlocks;
+    private boolean paused;
 
     public GameScene(CoreGame coreGame) {
         this.game = coreGame;
+        this.paused = false;
 
         world = new World(new Vector2(0, Constants.GRAVITY_VALUE), true);
         this.npc = new Npc(world, Constants.VIEWPORT_WIDTH / 2, Constants.VIEWPORT_HEIGHT / 2f);
@@ -35,9 +37,21 @@ public class GameScene implements Scene {
         this.tilemap = new Tilemap(world, Constants.TILE_SIZE.cpy().scl(-1f), Constants.TILE_SIZE.cpy(), Math.round(Constants.VIEWPORT_WIDTH / Constants.TILE_SIZE.x) + 2, Math.round(Constants.VIEWPORT_HEIGHT / Constants.TILE_SIZE.y) + 2);
         placedBlocks = new LinkedList<>();
 
+        tilemap.setTile(tilemap.getValidTilePosition(13, 7), TileType.Block);
         tilemap.setTile(tilemap.getValidTilePosition(14, 7), TileType.Block);
         tilemap.setTile(tilemap.getValidTilePosition(15, 7), TileType.Block);
         tilemap.setTile(tilemap.getValidTilePosition(16, 7), TileType.Block);
+
+        int tickFactor = 2;
+        for (int i = 0; i < 10; i++) {
+            inputSequencer.addInput(new InputSequencer.Input(InputType.Idle, 40 * tickFactor));
+            inputSequencer.addInput(new InputSequencer.Input(InputType.Left, 20 * tickFactor));
+            inputSequencer.addInput(new InputSequencer.Input(InputType.Idle, 20 * tickFactor));
+            inputSequencer.addInput(new InputSequencer.Input(InputType.Right, 20 * tickFactor));
+            inputSequencer.addInput(new InputSequencer.Input(InputType.Idle, 40 * tickFactor));
+            inputSequencer.addInput(new InputSequencer.Input(InputType.Left, 20 * tickFactor));
+            inputSequencer.addInput(new InputSequencer.Input(InputType.Right, 20 * tickFactor));
+        }
     }
 
     @Override
@@ -69,21 +83,17 @@ public class GameScene implements Scene {
 
     @Override
     public void handleDebugInputs() {
-
+        if (Gdx.input.isKeyJustPressed(Input.Keys.F2)) {
+            paused = !paused;
+        }
     }
 
     @Override
     public void update(float timeStep) {
+        if (paused) return;
+
         inputSequencer.advance();
         final var input = inputSequencer.getInput();
-        for (int i = 0; i < 10; i++) {
-            inputSequencer.addInput(new InputSequencer.Input(InputType.Left, 15));
-            inputSequencer.addInput(new InputSequencer.Input(InputType.Right, 15));
-            inputSequencer.addInput(new InputSequencer.Input(InputType.Idle, 40));
-            inputSequencer.addInput(new InputSequencer.Input(InputType.Left, 15));
-            inputSequencer.addInput(new InputSequencer.Input(InputType.Right, 15));
-            inputSequencer.addInput(new InputSequencer.Input(InputType.Idle, 40));
-        }
         npc.update(input);
 
         world.step(Constants.TIME_STEP, Constants.VELOCITY_ITERATIONS, Constants.POSITION_ITERATIONS);
@@ -100,10 +110,10 @@ public class GameScene implements Scene {
         game.spriteBatch.setProjectionMatrix(game.camera.combined);
         tilemap.render(deltaTime, game.spriteBatch);
         npc.render(deltaTime, game.spriteBatch);
-        inputSequencer.render(deltaTime, game.spriteBatch);
+        inputSequencer.render(deltaTime, game.camera, game.spriteBatch);
         game.spriteBatch.end();
 
-        ImGui.ShowDemoWindow();
+//        ImGui.ShowDemoWindow();
 
         if (game.debugMode) {
             game.debugRenderer.render(world, game.camera.combined);
