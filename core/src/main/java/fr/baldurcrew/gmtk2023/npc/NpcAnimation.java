@@ -2,7 +2,7 @@ package fr.baldurcrew.gmtk2023.npc;
 
 import fr.baldurcrew.gmtk2023.utils.FrameData;
 
-public enum NpcAction {
+public enum NpcAnimation {
     Idle(new FrameData(0, 0), new FrameData(1, 0)),
     Blink(new FrameData(0, 1), new FrameData(1, 1)),
     Walk(new FrameData(0, 2), new FrameData(1, 2), new FrameData(2, 2), new FrameData(3, 2)),
@@ -15,7 +15,7 @@ public enum NpcAction {
 
     private FrameData[] frames;
 
-    NpcAction(FrameData... frames) {
+    NpcAnimation(FrameData... frames) {
         this.frames = frames;
     }
 

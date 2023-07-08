@@ -21,12 +21,12 @@ public class NpcResources {
 
     private static NpcResources instance;
 
-    private final Map<NpcAction, Animation<TextureRegion>> npcAnimations;
+    private final Map<NpcAnimation, Animation<TextureRegion>> npcAnimations;
 
     public NpcResources() {
         npcAnimations = new HashMap<>();
         final var spriteSheet = Utils.loadAndSplitSpriteSheet("npc/npc_spritesheet.png", NPC_SPRITE_SHEET_COL_COUNT, NPC_SPRITE_SHEET_ROW_COUNT);
-        Stream.of(NpcAction.values()).forEach(action -> {
+        Stream.of(NpcAnimation.values()).forEach(action -> {
             Animation<TextureRegion> animation = Utils.buildAnimation(FRAME_DURATION, action.getFrames(), spriteSheet);
             npcAnimations.put(action, animation);
         });
@@ -40,7 +40,7 @@ public class NpcResources {
         return instance;
     }
 
-    public Animation<TextureRegion> getAnimation(NpcAction action) {
+    public Animation<TextureRegion> getAnimation(NpcAnimation action) {
         return npcAnimations.get(action);
     }
 }
