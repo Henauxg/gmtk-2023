@@ -10,6 +10,7 @@ import fr.baldurcrew.gmtk2023.inputs.InputSequencer;
 import fr.baldurcrew.gmtk2023.level.tiles.Tilemap;
 import fr.baldurcrew.gmtk2023.level.tiles.types.TileType;
 import fr.baldurcrew.gmtk2023.npc.Npc;
+import fr.baldurcrew.gmtk2023.utils.NumericRenderer;
 import fr.baldurcrew.gmtk2023.utils.Utils;
 
 import java.util.LinkedList;
@@ -17,10 +18,12 @@ import java.util.LinkedList;
 public class GameScene implements Scene {
 
     private static final int MAX_PLACED_BLOCKS_COUNT = 3;
+    private static final Vector2 PLACED_BLOCK_NUMBER_SIZE = Constants.TILE_SIZE.cpy().scl(0.5f);
     private final CoreGame game;
     private final World world;
     private final Tilemap tilemap;
     private final InputSequencer inputSequencer;
+    private final NumericRenderer numericRenderer;
     private Npc npc;
     private LinkedList<Tilemap.TilePosition> placedBlocks;
     private boolean paused;
@@ -28,8 +31,9 @@ public class GameScene implements Scene {
     public GameScene(CoreGame coreGame) {
         this.game = coreGame;
         this.paused = false;
+        this.numericRenderer = new NumericRenderer();
 
-        world = new World(new Vector2(0, Constants.GRAVITY_VALUE), true);
+        this.world = new World(new Vector2(0, Constants.GRAVITY_VALUE), true);
         this.npc = new Npc(world, Constants.VIEWPORT_WIDTH / 2, Constants.VIEWPORT_HEIGHT / 2f);
         this.inputSequencer = new InputSequencer(true);
 
@@ -76,6 +80,7 @@ public class GameScene implements Scene {
                 tilemap.setTile(tilePos, TileType.Block);
             }
             case Block -> {
+
             }
         }
     }
@@ -109,8 +114,12 @@ public class GameScene implements Scene {
         game.spriteBatch.setProjectionMatrix(game.camera.combined);
         tilemap.render(deltaTime, game.spriteBatch);
         // TODO Render green blinking block under cursor ? (wont work on phones)
-        // + Red blinking block for the next block that will disappear
-
+        // TODO + Red blinking block for the next block that will disappear
+        // TODO Could refresh a block in the FIFO by touching it again
+        for (int i = 0; i < placedBlocks.size(); i++) {
+            final var worldPos = tilemap.getWorldPosition(placedBlocks.get(i));
+            numericRenderer.renderNumber(game.spriteBatch, i + 1, worldPos, PLACED_BLOCK_NUMBER_SIZE);
+        }
         npc.render(deltaTime, game.spriteBatch);
         inputSequencer.render(deltaTime, game.camera, game.spriteBatch);
         game.spriteBatch.end();

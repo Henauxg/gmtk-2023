@@ -107,6 +107,10 @@ public class Tilemap implements Disposable {
         return tiles[tilePos.i()][tilePos.j()].type;
     }
 
+    public Vector2 getWorldPosition(TilePosition tilePos) {
+        return tilePos.toWorld(origin, tileSize);
+    }
+
     public record TilePosition(int i, int j) {
         protected Vector2 toWorld(Vector2 origin, Vector2 tileSize) {
             return new Vector2(origin.x + i * tileSize.x + tileSize.x / 2f, origin.y + j * tileSize.y + tileSize.y / 2f);
