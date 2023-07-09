@@ -12,7 +12,7 @@ import com.badlogic.gdx.physics.box2d.Box2D;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.github.xpenatan.imgui.core.ImGui;
-import fr.baldurcrew.gmtk2023.screens.MainMenuScene;
+import fr.baldurcrew.gmtk2023.screens.MainLightMenuScene;
 import fr.baldurcrew.gmtk2023.screens.Scene;
 
 /**
@@ -46,11 +46,7 @@ public class CoreGame extends Game implements InputProcessor {
         Box2D.init();
         debugRenderer = new Box2DDebugRenderer();
 
-        CommonResources.getInstance().mainMenuMusic.setLooping(true);
-        CommonResources.getInstance().mainMenuMusic.setVolume(Constants.DEFAULT_AUDIO_VOLUME);
-        CommonResources.getInstance().mainMenuMusic.play();
-
-        this.setScene(new MainMenuScene(this));
+        this.setScene(new MainLightMenuScene(this));
     }
 
     @Override
