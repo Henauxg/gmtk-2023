@@ -46,7 +46,7 @@ public class NpcDialogEvent extends CutsceneEvent {
         var lettersToDisplay = Math.min(Math.round(text.length() * textTimer / eventDuration), text.length() - 1);
         if (lettersToDisplay > lettersDisplayed) {
             if (text.charAt(lettersToDisplay) != ' ' && text.charAt(lettersToDisplay) != '\'' && text.charAt(lettersToDisplay) != '.' && text.charAt(lettersToDisplay) != ',') {
-                soundEffect.play(Constants.DEFAULT_AUDIO_VOLUME);
+                soundEffect.play(Constants.DEFAULT_AUDIO_VOLUME * 0.5f);
             }
             lettersDisplayed = lettersToDisplay;
             label.setText(text.substring(0, lettersToDisplay + 1));
