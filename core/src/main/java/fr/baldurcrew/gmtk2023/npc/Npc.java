@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Disposable;
+import fr.baldurcrew.gmtk2023.Constants;
 import fr.baldurcrew.gmtk2023.inputs.InputSequencer;
 import fr.baldurcrew.gmtk2023.physics.ContactHandler;
 import fr.baldurcrew.gmtk2023.physics.FixtureContact;
@@ -115,11 +116,17 @@ public class Npc implements ContactHandler, Disposable {
         float impulseY = 0f;
         switch (input.type()) {
             case Left -> {
+                if (previousInputId != input.id()) {
+                    NpcResources.getInstance().footstepsSound.play(Constants.DEFAULT_AUDIO_VOLUME);
+                }
                 desiredVelocityX = -MAX_NPC_VELOCITY_X;
                 currentAnimation = NpcAnimation.Run;
                 shouldFlipX = true;
             }
             case Right -> {
+                if (previousInputId != input.id()) {
+                    NpcResources.getInstance().footstepsSound.play(Constants.DEFAULT_AUDIO_VOLUME);
+                }
                 desiredVelocityX = MAX_NPC_VELOCITY_X;
                 currentAnimation = NpcAnimation.Run;
                 shouldFlipX = false;
