@@ -10,6 +10,7 @@ import fr.baldurcrew.gmtk2023.level.tiles.Tilemap;
 import fr.baldurcrew.gmtk2023.npc.NpcResources;
 
 import java.util.LinkedList;
+import java.util.List;
 
 public class BlockPlaceEvent extends CutsceneEvent {
 
@@ -45,5 +46,9 @@ public class BlockPlaceEvent extends CutsceneEvent {
             placeTimer = 0f;
         }
         return false;
+    }
+
+    public List<Tilemap.TilePosition> getBlocks() {
+        return blocksToPlace;
     }
 }

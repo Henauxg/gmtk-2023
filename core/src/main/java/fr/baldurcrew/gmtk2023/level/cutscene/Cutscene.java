@@ -2,8 +2,11 @@ package fr.baldurcrew.gmtk2023.level.cutscene;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import fr.baldurcrew.gmtk2023.level.Level;
+import fr.baldurcrew.gmtk2023.level.cutscene.events.BlockPlaceEvent;
+import fr.baldurcrew.gmtk2023.level.tiles.Tilemap;
 
 import java.util.LinkedList;
+import java.util.List;
 
 public class Cutscene {
 
@@ -23,5 +26,17 @@ public class Cutscene {
         }
 
         return currentEvent == null;
+    }
+
+    // No time anymore
+    public List<Tilemap.TilePosition> collectBlockPlacements() {
+        final var tilePositions = new LinkedList<Tilemap.TilePosition>();
+        for (CutsceneEvent event : this.events) {
+            if (event instanceof BlockPlaceEvent) {
+                tilePositions.addAll(((BlockPlaceEvent) event).getBlocks());
+            }
+        }
+
+        return tilePositions;
     }
 }

@@ -25,7 +25,7 @@ public class Levels {
         // Level 1
         {
             final var startCutsceneEvents = new LinkedList<CutsceneEvent>();
-            startCutsceneEvents.add(new NpcMovementEvent(List.of(InputType.Left, InputType.Left, InputType.Left, InputType.Left, InputType.Left, InputType.Left)));
+            startCutsceneEvents.add(new NpcMovementEvent(List.of(InputType.Left, InputType.Left, InputType.Left, InputType.Left, InputType.Left, InputType.Left))); // TODO Give delta manually to level constructor
             startCutsceneEvents.add(new NpcDialogEvent("Okey... I'll get to work on that level.", DEFAULT_TIME_PER_LETTER_S, 0.5f));
             startCutsceneEvents.add(new ImGuiEvent(true));
             startCutsceneEvents.add(new WaitEvent(1.f));
@@ -52,7 +52,7 @@ public class Levels {
             final var levelInputs = new LinkedList<InputType>();
             levelInputs.addAll(List.of(InputType.Idle, InputType.Idle, InputType.Idle, InputType.Left, InputType.Idle, InputType.Left, InputType.Idle, InputType.Idle, InputType.Right, InputType.Left, InputType.Idle, InputType.Left, InputType.Idle, InputType.JumpLeft, InputType.Left, InputType.Left, InputType.Left, InputType.Left, InputType.Left, InputType.Idle, InputType.Left, InputType.Left, InputType.Left, InputType.Left, InputType.Left));
 
-            LEVEL_1 = new Level(29, 8, levelBlocks, new Cutscene(startCutsceneEvents), new TileRect(8, 8, 2, 2), levelInputs);
+            LEVEL_1 = new Level(23, 8, 29, 8, levelBlocks, new Cutscene(startCutsceneEvents), new TileRect(8, 8, 2, 2), levelInputs);
         }
 
         // Level 2
@@ -68,7 +68,7 @@ public class Levels {
             final var levelInputs = new LinkedList<InputType>();
             levelInputs.addAll(List.of(InputType.Idle, InputType.Idle, InputType.Idle, InputType.Left, InputType.Idle, InputType.Left, InputType.Idle, InputType.JumpLeft, InputType.Idle, InputType.Right, InputType.Left, InputType.Idle, InputType.Left, InputType.Idle, InputType.JumpLeft));
 
-            LEVEL_2 = new Level(12, 5, levelBlocks, new Cutscene(startCutsceneEvents), new TileRect(4, 2, 5, 3), levelInputs);
+            LEVEL_2 = new Level(12, 5, 12, 5, levelBlocks, new Cutscene(startCutsceneEvents), new TileRect(4, 2, 5, 3), levelInputs);
         }
 
         LEVELS = new Level[]{LEVEL_1, LEVEL_2};

@@ -37,8 +37,6 @@ public class Level implements Disposable {
     public static final int MAX_PLACED_BLOCKS_COUNT = 3;
     private static final Vector2 PLACED_BLOCK_NUMBER_SIZE = Constants.TILE_SIZE.cpy().scl(0.5f);
 
-    //    public final Tilemap tilemap;
-    //TODO Way to give tiles to Level
     public final boolean isRandom;
     public final int startingTileX;
     public final int startingTileY;
@@ -49,10 +47,13 @@ public class Level implements Disposable {
     private final List<InputType> levelInputs;
     private final List<Tilemap.TilePosition> levelBlocks;
     private final Cutscene startCutscene;
+    private final List<Tilemap.TilePosition> cutsceneBlocks;
     private final Texture endAreaTileTexture;
     private final Sound blockPlaceSound;
     private final Label.LabelStyle labelStyle;
     private final Label uiLabel;
+    private final int cutsceneStartingTileX;
+    private final int cutsceneStartingTileY;
     private TileRect endArea; // Optional
     private LinkedList<Tilemap.TilePosition> placedBlocks;
     private Tilemap tilemap;
@@ -63,10 +64,12 @@ public class Level implements Disposable {
     private boolean renderEndArea;
     private boolean levelLost;
 
-    private Level(boolean random, int startingTileX, int startingTileY, List<Tilemap.TilePosition> blocks, Cutscene startCutscene) {
+    private Level(boolean random, int startingTileX, int startingTileY, int cutsceneStartingTileX, int cutsceneStartingTileY, List<Tilemap.TilePosition> blocks, Cutscene startCutscene) {
         this.isRandom = random;
         this.startingTileX = startingTileX;
         this.startingTileY = startingTileY;
+        this.cutsceneStartingTileX = cutsceneStartingTileX;
+        this.cutsceneStartingTileY = cutsceneStartingTileY;
 
         this.stage = new Stage(new ScreenViewport());
         this.world = new World(new Vector2(0, Constants.GRAVITY_VALUE), true);
@@ -75,9 +78,11 @@ public class Level implements Disposable {
         this.levelInputs = new LinkedList<>();
         this.levelBlocks = blocks;
         this.startCutscene = startCutscene;
+        this.cutsceneBlocks = startCutscene.collectBlockPlacements();
         this.endAreaTileTexture = CommonResources.getInstance().greenTileOverlayTexture;
         this.blockPlaceSound = NpcResources.getInstance().blockPlaceSound;
         this.started = false;
+        this.levelLost = false;
         this.renderInputQueue = false;
         this.renderEndArea = false;
 
@@ -92,39 +97,47 @@ public class Level implements Disposable {
         stage.addActor(uiLabel);
     }
 
-    public Level(int startingTileX, int startingTileY, List<Tilemap.TilePosition> blocks, Cutscene startCutscene) {
-        this(true, startingTileX, startingTileY, blocks, startCutscene);
-        // TODO tilemap data;
-        reset();
+    public Level(int startingTileX, int startingTileY, int cutsceneStartingTileX, int cutsceneStartingTileY, List<Tilemap.TilePosition> blocks, Cutscene startCutscene) {
+        this(true, startingTileX, startingTileY, cutsceneStartingTileX, cutsceneStartingTileY, blocks, startCutscene);
+
+        build(cutsceneStartingTileX, cutsceneStartingTileY);
     }
 
-    public Level(int startingTileX, int startingTileY, List<Tilemap.TilePosition> blocks, Cutscene startCutscene, TileRect endArea, List<InputType> inputs) {
-        this(false, startingTileX, startingTileY, blocks, startCutscene);
+    public Level(int startingTileX, int startingTileY, int cutsceneStartingTileX, int cutsceneStartingTileY, List<Tilemap.TilePosition> blocks, Cutscene startCutscene, TileRect endArea, List<InputType> inputs) {
+        this(false, startingTileX, startingTileY, cutsceneStartingTileX, cutsceneStartingTileY, blocks, startCutscene);
         this.endArea = endArea;
         this.levelInputs.addAll(inputs);
 
-        reset();
+        build(cutsceneStartingTileX, cutsceneStartingTileY);
     }
 
-    public void reset() {
-        this.levelLost = false;
+    public void build(int npcX, int npcY) {
         this.placedBlocks = new LinkedList<>();
         this.inputSequencer = new InputSequencer(isRandom);
         this.uiLabel.setText("");
 
-        if (this.tilemap != null) {
-            this.tilemap.dispose();
-        }
         this.tilemap = new Tilemap(world, Constants.TILE_SIZE.cpy().scl(-1f), Constants.TILE_SIZE.cpy(), Math.round(Constants.VIEWPORT_WIDTH / Constants.TILE_SIZE.x) + 2, Math.round(Constants.VIEWPORT_HEIGHT / Constants.TILE_SIZE.y) + 2);
         worldContactListener.clear();
 
         this.levelBlocks.forEach(blockPos -> tilemap.setTile(blockPos, TileType.Block));
 
+        this.npc = new Npc(world, tilemap.getWorldPosition(npcX, npcY));
+        worldContactListener.addListener(npc);
+    }
+
+    public void reset() {
+        this.levelLost = false;
+        this.started = true;
+
+        if (this.tilemap != null) {
+            this.tilemap.dispose();
+        }
         if (this.npc != null) {
             this.npc.dispose();
         }
-        this.npc = new Npc(world, tilemap.getWorldPosition(startingTileX, startingTileY));
-        worldContactListener.addListener(npc);
+        build(startingTileX, startingTileY);
+        this.cutsceneBlocks.forEach(blockPos -> tilemap.setTile(blockPos, TileType.Block));
+        start();
     }
 
     public void render(SpriteBatch spriteBatch, Box2DDebugRenderer debugRenderer, NumericRenderer numericRenderer, Camera camera, boolean debugMode, float deltaTime) {
