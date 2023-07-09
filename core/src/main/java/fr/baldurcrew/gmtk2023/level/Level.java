@@ -36,9 +36,9 @@ import java.util.List;
 
 public class Level implements Disposable {
 
-    public static final String LAYER_00 = "background/background_0.png";
-    public static final String LAYER_01 = "background/background_1.png";
-    public static final String LAYER_02 = "background/background_2.png";
+    public static final String LAYER_00 = "background/background_0_256.png";
+    public static final String LAYER_01 = "background/background_1_256.png";
+    public static final String LAYER_02 = "background/background_2_256.png";
 
     public static final int MAX_PLACED_BLOCKS_COUNT = 3;
     private static final Vector2 PLACED_BLOCK_NUMBER_SIZE = Constants.TILE_SIZE.cpy().scl(0.5f);
@@ -131,9 +131,9 @@ public class Level implements Disposable {
 
     private void createParallaxLayers() {
         backgroundLayers = new ArrayList<>();
-        backgroundLayers.add(new ParallaxLayer(new Texture(LAYER_00), 80, 1, 0.65f, 0f, true, false, 0f, 0f));
-        backgroundLayers.add(new ParallaxLayer(new Texture(LAYER_01), 40, 1, 0.65f, 0.1f, true, false, 0f, 0f));
-        backgroundLayers.add(new ParallaxLayer(new Texture(LAYER_02), 30, 1, 0.65f, 0.01f, true, false, 0f, 0f));
+        backgroundLayers.add(new ParallaxLayer(new Texture(LAYER_00), 80, 1f, 0.1f, true));
+        backgroundLayers.add(new ParallaxLayer(new Texture(LAYER_01), 40, 1f, 0.7f, true));
+        backgroundLayers.add(new ParallaxLayer(new Texture(LAYER_02), 30, 1f, 0.62f, true));
     }
 
     public void build(int npcX, int npcY) {
