@@ -9,6 +9,8 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.github.xpenatan.imgui.core.ImGui;
@@ -49,6 +51,8 @@ public class Level implements Disposable {
     private final Cutscene startCutscene;
     private final Texture endAreaTileTexture;
     private final Sound blockPlaceSound;
+    private final Label.LabelStyle labelStyle;
+    private final Label uiLabel;
     private TileRect endArea; // Optional
     private LinkedList<Tilemap.TilePosition> placedBlocks;
     private Tilemap tilemap;
@@ -57,6 +61,7 @@ public class Level implements Disposable {
     private boolean started;
     private boolean renderInputQueue;
     private boolean renderEndArea;
+    private boolean levelLost;
 
     private Level(boolean random, int startingTileX, int startingTileY, List<Tilemap.TilePosition> blocks, Cutscene startCutscene) {
         this.isRandom = random;
@@ -75,6 +80,16 @@ public class Level implements Disposable {
         this.started = false;
         this.renderInputQueue = false;
         this.renderEndArea = false;
+
+        labelStyle = new Label.LabelStyle();
+        labelStyle.font = CommonResources.getInstance().defaultFont;
+        uiLabel = new Label("", labelStyle);
+//        uiLabel.setSize(Gdx.graphics.getWidth() / 2f, 2f);
+        uiLabel.setSize(2f, 2f);
+        uiLabel.setPosition(Gdx.graphics.getWidth() / 2f, Gdx.graphics.getHeight() * 1f / 4f);
+        uiLabel.setAlignment(Align.center);
+
+        stage.addActor(uiLabel);
     }
 
     public Level(int startingTileX, int startingTileY, List<Tilemap.TilePosition> blocks, Cutscene startCutscene) {
@@ -92,8 +107,10 @@ public class Level implements Disposable {
     }
 
     public void reset() {
+        this.levelLost = false;
         this.placedBlocks = new LinkedList<>();
         this.inputSequencer = new InputSequencer(isRandom);
+        this.uiLabel.setText("");
 
         if (this.tilemap != null) {
             this.tilemap.dispose();
@@ -136,7 +153,6 @@ public class Level implements Disposable {
                 start();
             }
         }
-//        stage.act();
         stage.draw();
 
         if (debugMode) {
@@ -181,9 +197,15 @@ public class Level implements Disposable {
     }
 
     public boolean update() {
+        if (levelLost) return false;
+
         inputSequencer.advance(npc.isTouchingGround());
         final var input = inputSequencer.getInput();
-        npc.update(input);
+        final var isDead = npc.update(input);
+        if (isDead) {
+            levelLost = true;
+            uiLabel.setText("You lost, tap to retry");
+        }
 
         world.step(Constants.TIME_STEP, Constants.VELOCITY_ITERATIONS, Constants.POSITION_ITERATIONS);
 
@@ -191,12 +213,15 @@ public class Level implements Disposable {
     }
 
     public void handleInputs() {
-        if (started && Gdx.input.justTouched()) {
+        if (!levelLost && started && Gdx.input.justTouched()) {
             final var worldPos = Utils.getInputWorldPosition(Constants.VIEWPORT_WIDTH, Constants.VIEWPORT_HEIGHT);
             final var tilePos = tilemap.getValidTilePosition(worldPos);
             if (tilePos != null) {
                 handleTileTouch(tilePos);
             }
+        }
+        if (levelLost && Gdx.input.justTouched()) {
+            this.reset();
         }
     }
 

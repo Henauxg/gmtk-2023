@@ -32,6 +32,7 @@ public class Npc implements ContactHandler, Disposable {
     private Set<Fixture> contactGroundFixtures;
     private boolean touchingGround;
     private boolean shouldFlipX;
+    private boolean isDead;
 
     public Npc(World world, Vector2 position) {
         this.world = world;
@@ -45,6 +46,7 @@ public class Npc implements ContactHandler, Disposable {
         this.contactGroundFixtures = new HashSet<>();
         this.touchingGround = false;
         this.shouldFlipX = false;
+        this.isDead = false;
     }
 
     private Body createBody(World world, Vector2 position, float density, float friction, float restitution) {
@@ -110,8 +112,12 @@ public class Npc implements ContactHandler, Disposable {
         batch.draw(currentFrame, renderX, renderY, NpcResources.NPC_RENDER_WIDTH, NpcResources.NPC_RENDER_HEIGHT);
     }
 
-    public void update(InputSequencer.Input input) {
+    public boolean update(InputSequencer.Input input) {
         touchingGround = !contactGroundFixtures.isEmpty();
+        isDead = body.getPosition().y < 0;
+        if (isDead) {
+            return true;
+        }
 
         Vector2 velocity = body.getLinearVelocity();
 
@@ -166,6 +172,8 @@ public class Npc implements ContactHandler, Disposable {
         }
 
         body.applyLinearImpulse(new Vector2(impulseX, impulseY), body.getWorldCenter(), true);
+
+        return false;
     }
 
     public boolean isTouchingGround() {
