@@ -1,5 +1,7 @@
 package fr.baldurcrew.gmtk2023.npc;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import fr.baldurcrew.gmtk2023.utils.Utils;
@@ -14,13 +16,13 @@ public class NpcResources {
     public static final float NPC_RENDER_HEIGHT = 1;
     public static final float NPC_COLLIDER_WIDTH = NPC_RENDER_WIDTH / 2.f;
 
-
     private static final float FRAME_DURATION = 0.25f;
     private static final int NPC_SPRITE_SHEET_COL_COUNT = 8;
     private static final int NPC_SPRITE_SHEET_ROW_COUNT = 9;
 
     private static NpcResources instance;
 
+    public final Sound npcSpeakingSound;
     private final Map<NpcAnimation, Animation<TextureRegion>> npcAnimations;
 
     public NpcResources() {
@@ -30,6 +32,8 @@ public class NpcResources {
             Animation<TextureRegion> animation = Utils.buildAnimation(FRAME_DURATION, action.getFrames(), spriteSheet);
             npcAnimations.put(action, animation);
         });
+
+        npcSpeakingSound = Gdx.audio.newSound(Gdx.files.internal("sounds/voice_bip.mp3"));
     }
 
     public static NpcResources getInstance() {
