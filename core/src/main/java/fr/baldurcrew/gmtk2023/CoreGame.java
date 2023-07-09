@@ -25,7 +25,7 @@ public class CoreGame extends Game implements InputProcessor {
     public SpriteBatch spriteBatch;
     public BitmapFont font;
     public OrthographicCamera camera;
-    public boolean debugMode = true;
+    public boolean debugMode = false;
     public Box2DDebugRenderer debugRenderer;
     private ImGuiWrapper imGuiWrapper;
     private Scene scene;

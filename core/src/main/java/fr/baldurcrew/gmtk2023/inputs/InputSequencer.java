@@ -29,7 +29,7 @@ public class InputSequencer {
         this.inputs = new LinkedList<>();
 
         if (generateRandomInputs) {
-            fillInputQueue(QUEUE_INPUTS_RENDER_COUNT);
+//            fillInputQueue(QUEUE_INPUTS_RENDER_COUNT);
         }
     }
 
@@ -56,7 +56,12 @@ public class InputSequencer {
         inputs.add(new Input(type, inputId));
     }
 
-    public void advance(boolean allowTransition) {
+    public void advance(boolean allowTransition, boolean allowFill) {
+        // Oh the horrors
+        if (random && allowFill) {
+            fillInputQueue(QUEUE_INPUTS_RENDER_COUNT);
+        }
+
         if (inputs.size() == 0) return;
 
         if (currentInputTickCounter <= inputs.get(0).type.ticks) {
@@ -66,7 +71,7 @@ public class InputSequencer {
             inputs.removeFirst();
             currentInputTickCounter = 0;
         }
-        if (random) {
+        if (random && allowFill) {
             fillInputQueue(QUEUE_INPUTS_RENDER_COUNT);
         }
     }

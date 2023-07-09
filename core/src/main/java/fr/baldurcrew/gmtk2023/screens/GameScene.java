@@ -35,12 +35,12 @@ public class GameScene implements Scene {
 
     @Override
     public void handleDebugInputs() {
-        if (Gdx.input.isKeyJustPressed(Input.Keys.F2)) {
-            paused = !paused;
-        }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.F3)) {
-            level.reset();
-        }
+//        if (Gdx.input.isKeyJustPressed(Input.Keys.F2)) {
+//            paused = !paused;
+//        }
+//        if (Gdx.input.isKeyJustPressed(Input.Keys.F3)) {
+//            level.reset();
+//        }
     }
 
     @Override

@@ -61,6 +61,9 @@ public class Level implements Disposable {
     private final Label uiLevelName;
     private final int cutsceneStartingTileX;
     private final int cutsceneStartingTileY;
+    private final Texture cursorTexture;
+    private final Label uiTimer;
+    private float playTimer;
     private TileRect endArea; // Optional
     private List<ParallaxLayer> backgroundLayers;
 
@@ -74,6 +77,7 @@ public class Level implements Disposable {
     private boolean levelLost;
 
     private Level(String levelName, boolean random, int startingTileX, int startingTileY, int cutsceneStartingTileX, int cutsceneStartingTileY, List<Tilemap.TilePosition> blocks, Cutscene startCutscene) {
+        this.playTimer = 0f;
         this.isRandom = random;
         this.startingTileX = startingTileX;
         this.startingTileY = startingTileY;
@@ -89,6 +93,7 @@ public class Level implements Disposable {
         this.startCutscene = startCutscene;
         this.cutsceneBlocks = startCutscene.collectBlockPlacements();
         this.endAreaTileTexture = CommonResources.getInstance().greenTileOverlayTexture;
+        this.cursorTexture = CommonResources.getInstance().cursorOverlay;
         this.blockPlaceSound = NpcResources.getInstance().blockPlaceSound;
         this.started = false;
         this.levelLost = false;
@@ -109,8 +114,14 @@ public class Level implements Disposable {
         uiLevelName.setAlignment(Align.center);
         uiLevelName.setText(levelName);
 
+        uiTimer = new Label("", labelStyle);
+        uiTimer.setSize(2f, 2f);
+        uiTimer.setPosition(Gdx.graphics.getWidth() / 2f, Gdx.graphics.getHeight() * 17f / 20f);
+        uiTimer.setAlignment(Align.center);
+
         stage.addActor(uiText);
         stage.addActor(uiLevelName);
+        stage.addActor(uiTimer);
 
         createParallaxLayers();
     }
@@ -153,6 +164,7 @@ public class Level implements Disposable {
     public void reset() {
         this.levelLost = false;
         this.started = true;
+        this.playTimer = 0f;
 
         if (this.tilemap != null) {
             this.tilemap.dispose();
@@ -166,6 +178,11 @@ public class Level implements Disposable {
     }
 
     public void render(SpriteBatch spriteBatch, Box2DDebugRenderer debugRenderer, NumericRenderer numericRenderer, Camera camera, boolean debugMode, float deltaTime) {
+        if (started && isRandom && !levelLost) {
+            playTimer += deltaTime;
+            uiTimer.setText(Utils.secondsToDisplayString(playTimer));
+        }
+
         spriteBatch.begin();
         spriteBatch.setProjectionMatrix(camera.combined);
         backgroundLayers.forEach(l -> l.render(camera, spriteBatch, deltaTime));
@@ -178,6 +195,11 @@ public class Level implements Disposable {
         }
         if (renderEndArea && endArea != null) {
             tilemap.renderRect(spriteBatch, endAreaTileTexture, endArea);
+        }
+        final var mousePos = Utils.getInputWorldPosition(camera.viewportWidth, camera.viewportHeight);
+        final var mouseTile = tilemap.getValidTilePosition(mousePos);
+        if (mouseTile != null) {
+            tilemap.renderTile(spriteBatch, cursorTexture, mouseTile);
         }
 
         npc.render(deltaTime, spriteBatch);
@@ -238,7 +260,9 @@ public class Level implements Disposable {
     public boolean update() {
         if (levelLost) return false;
 
-        inputSequencer.advance(npc.isTouchingGround());
+//        if (!isRandom || (isRandom && started)) {
+        inputSequencer.advance(npc.isTouchingGround(), isRandom && started);
+//        }
         final var input = inputSequencer.getInput();
         final var isDead = npc.update(input);
         if (isDead) {
@@ -248,7 +272,10 @@ public class Level implements Disposable {
 
         world.step(Constants.TIME_STEP, Constants.VELOCITY_ITERATIONS, Constants.POSITION_ITERATIONS);
 
-        return tilemap.isInside(npc.getPosition(), endArea);
+        if (endArea != null) {
+            return tilemap.isInside(npc.getPosition(), endArea);
+        }
+        return false;
     }
 
     public void handleInputs() {

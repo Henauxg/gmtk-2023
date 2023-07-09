@@ -141,6 +141,12 @@ public class Tilemap implements Disposable {
         }
     }
 
+    public void renderTile(SpriteBatch spriteBatch, Texture texture, TilePosition mouseTile) {
+        float renderX = origin.x + mouseTile.i * tileSize.x;
+        float renderY = origin.y + mouseTile.j * tileSize.y;
+        spriteBatch.draw(texture, renderX, renderY, tileSize.x, tileSize.y);
+    }
+
     public static final class TilePosition {
         private final int i;
         private final int j;

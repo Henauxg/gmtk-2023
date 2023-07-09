@@ -10,7 +10,7 @@ public class CommonResources {
 
     public final BitmapFont defaultFont;
 
-
+    public final Texture cursorOverlay;
     public final Texture greenTileOverlayTexture;
     public final Music mainMenuMusic;
     public final Music mainGameMusic;
@@ -26,6 +26,8 @@ public class CommonResources {
         defaultFont = new BitmapFont(Gdx.files.internal("fonts/PixeloidSans_30.fnt"));
 
         greenTileOverlayTexture = new Texture("tiles/green_tile_overlay.png");
+        cursorOverlay = new Texture("tiles/cursor.png");
+
         mainMenuMusic = Gdx.audio.newMusic(Gdx.files.internal("musics/sinnesloschen-beam.mp3"));
         mainGameMusic = Gdx.audio.newMusic(Gdx.files.internal("musics/chiptune-grooving.mp3"));
     }
