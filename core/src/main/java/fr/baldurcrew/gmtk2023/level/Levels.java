@@ -20,6 +20,8 @@ public class Levels {
     private static final float DEFAULT_TIME_PER_LETTER_S = 0.05f;
 
     static {
+        // I am the player now
+
         // Level 1
         {
             final var startCutsceneEvents = new LinkedList<CutsceneEvent>();
@@ -30,13 +32,15 @@ public class Levels {
             startCutsceneEvents.add(new NpcDialogEvent("Put the end here, ...", DEFAULT_TIME_PER_LETTER_S, 0.5f));
             startCutsceneEvents.add(new EndAreaEvent(true));
             startCutsceneEvents.add(new NpcDialogEvent("Put some blocks here and here, ...", DEFAULT_TIME_PER_LETTER_S, 0.5f));
-//            startCutsceneEvents.add(new BlockPlaceEvent(true)); // TODO Block placement event
+            startCutsceneEvents.add(new BlockPlaceEvent(new TileRect(0, 7, 12, 1), 0.25f));
             startCutsceneEvents.add(new NpcDialogEvent("... ...", 0.5f, 0.5f));
             startCutsceneEvents.add(new NpcDialogEvent("Man, I'm so tired of designing those levels.", DEFAULT_TIME_PER_LETTER_S, 1.5f));
+            // TODO Think that's easy huh ? Do it .. Player places a block -> Oh yeah ? Okey, then you do it.
             startCutsceneEvents.add(new NpcMovementEvent(List.of(InputType.Left, InputType.Idle, InputType.Right)));
             startCutsceneEvents.add(new NpcDialogEvent("You know what ?", DEFAULT_TIME_PER_LETTER_S, 1f));
             startCutsceneEvents.add(new NpcMovementEvent(List.of(InputType.Left, InputType.Right)));
             startCutsceneEvents.add(new NpcDialogEvent("For once, I'll play and ... ... Yes ! You'll build the level !", DEFAULT_TIME_PER_LETTER_S, 1.5f));
+            startCutsceneEvents.add(new NpcDialogEvent("I am the player now !", DEFAULT_TIME_PER_LETTER_S, 1.5f));
             startCutsceneEvents.add(new InputQueueEvent(true));
             startCutsceneEvents.add(new MusicEvent("sounds/voice_bip.mp3")); // TODO Load somewhere
 
@@ -48,7 +52,7 @@ public class Levels {
             final var levelInputs = new LinkedList<InputType>();
             levelInputs.addAll(List.of(InputType.Idle, InputType.Idle, InputType.Idle, InputType.Left, InputType.Idle, InputType.Left, InputType.Idle, InputType.JumpLeft, InputType.Idle, InputType.Right, InputType.Left, InputType.Idle, InputType.Left, InputType.Idle, InputType.JumpLeft));
 
-            LEVEL_1 = new Level(29, 8, levelBlocks, new Cutscene(startCutsceneEvents), new TileRect(10, 8, 2, 2), levelInputs);
+            LEVEL_1 = new Level(29, 8, levelBlocks, new Cutscene(startCutsceneEvents), new TileRect(8, 8, 2, 2), levelInputs);
         }
 
         // Level 2

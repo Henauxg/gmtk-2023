@@ -239,4 +239,8 @@ public class Level implements Disposable {
     public Stage getStage() {
         return this.stage;
     }
+
+    public void addBlock(Tilemap.TilePosition pos) {
+        this.tilemap.setTile(pos, TileType.Block);
+    }
 }
