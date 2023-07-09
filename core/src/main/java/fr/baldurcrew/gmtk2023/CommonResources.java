@@ -23,7 +23,7 @@ public class CommonResources {
 //        defaultFont = generator.generateFont(parameter);
 //        generator.dispose();
 
-        defaultFont = new BitmapFont(Gdx.files.internal("fonts/PixeloidSans_36.fnt"));
+        defaultFont = new BitmapFont(Gdx.files.internal("fonts/PixeloidSans_30.fnt"));
 
         greenTileOverlayTexture = new Texture("tiles/green_tile_overlay.png");
         mainMenuMusic = Gdx.audio.newMusic(Gdx.files.internal("musics/sinnesloschen-beam.mp3"));
