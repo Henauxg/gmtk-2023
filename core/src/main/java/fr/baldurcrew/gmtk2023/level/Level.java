@@ -2,6 +2,7 @@ package fr.baldurcrew.gmtk2023.level;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
@@ -10,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.github.xpenatan.imgui.core.ImGui;
+import fr.baldurcrew.gmtk2023.CommonResources;
 import fr.baldurcrew.gmtk2023.Constants;
 import fr.baldurcrew.gmtk2023.inputs.InputSequencer;
 import fr.baldurcrew.gmtk2023.inputs.InputType;
@@ -43,7 +45,7 @@ public class Level implements Disposable {
     private final List<InputType> levelInputs;
     private final List<Tilemap.TilePosition> levelBlocks;
     private final Cutscene startCutscene;
-
+    private final Texture endAreaTileTexture;
     private TileRect endArea; // Optional
     private LinkedList<Tilemap.TilePosition> placedBlocks;
     private Tilemap tilemap;
@@ -65,6 +67,7 @@ public class Level implements Disposable {
         this.levelInputs = new LinkedList<>();
         this.levelBlocks = blocks;
         this.startCutscene = startCutscene;
+        this.endAreaTileTexture = CommonResources.getInstance().greenTileOverlayTexture;
         this.started = false;
         this.renderInputQueue = false;
         this.renderEndArea = false;
@@ -113,6 +116,10 @@ public class Level implements Disposable {
             final var worldPos = tilemap.getWorldPosition(placedBlocks.get(i));
             numericRenderer.renderNumber(spriteBatch, i + 1, worldPos, PLACED_BLOCK_NUMBER_SIZE);
         }
+        if (renderEndArea && endArea != null) {
+            tilemap.renderRect(spriteBatch, endAreaTileTexture, endArea);
+        }
+
         npc.render(deltaTime, spriteBatch);
         if (renderInputQueue) {
             inputSequencer.render(deltaTime, camera, spriteBatch);

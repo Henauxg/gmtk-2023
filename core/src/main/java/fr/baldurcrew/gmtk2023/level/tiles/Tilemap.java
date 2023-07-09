@@ -1,5 +1,6 @@
 package fr.baldurcrew.gmtk2023.level.tiles;
 
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
@@ -121,6 +122,21 @@ public class Tilemap implements Disposable {
             return rect.contains(tilePos);
         }
         return false;
+    }
+
+    // Quick & dirty, apply one texture over every tile of the rect
+    public void renderRect(SpriteBatch spriteBatch, Texture texture, TileRect rect) {
+        float originX = origin.x + rect.bottomLeft.i * tileSize.x;
+        float renderX = originX;
+        float renderY = origin.y + rect.bottomLeft.j * tileSize.y;
+        for (int j = 0; j < rect.height; j++) {
+            for (int i = 0; i < rect.width; i++) {
+                spriteBatch.draw(texture, renderX, renderY, tileSize.x, tileSize.y);
+                renderX += tileSize.x;
+            }
+            renderX = originX;
+            renderY += tileSize.y;
+        }
     }
 
     public record TilePosition(int i, int j) {
