@@ -1,6 +1,7 @@
 package fr.baldurcrew.gmtk2023.level;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -20,6 +21,7 @@ import fr.baldurcrew.gmtk2023.level.tiles.TileRect;
 import fr.baldurcrew.gmtk2023.level.tiles.Tilemap;
 import fr.baldurcrew.gmtk2023.level.tiles.types.TileType;
 import fr.baldurcrew.gmtk2023.npc.Npc;
+import fr.baldurcrew.gmtk2023.npc.NpcResources;
 import fr.baldurcrew.gmtk2023.physics.WorldContactListener;
 import fr.baldurcrew.gmtk2023.utils.NumericRenderer;
 import fr.baldurcrew.gmtk2023.utils.Utils;
@@ -46,6 +48,7 @@ public class Level implements Disposable {
     private final List<Tilemap.TilePosition> levelBlocks;
     private final Cutscene startCutscene;
     private final Texture endAreaTileTexture;
+    private final Sound blockPlaceSound;
     private TileRect endArea; // Optional
     private LinkedList<Tilemap.TilePosition> placedBlocks;
     private Tilemap tilemap;
@@ -68,6 +71,7 @@ public class Level implements Disposable {
         this.levelBlocks = blocks;
         this.startCutscene = startCutscene;
         this.endAreaTileTexture = CommonResources.getInstance().greenTileOverlayTexture;
+        this.blockPlaceSound = NpcResources.getInstance().blockPlaceSound;
         this.started = false;
         this.renderInputQueue = false;
         this.renderEndArea = false;
@@ -206,6 +210,7 @@ public class Level implements Disposable {
                 }
                 placedBlocks.add(tilePos);
                 tilemap.setTile(tilePos, TileType.Block);
+                blockPlaceSound.play(Constants.DEFAULT_AUDIO_VOLUME);
             }
             case Block -> {
                 final var index = placedBlocks.indexOf(tilePos);
@@ -213,6 +218,7 @@ public class Level implements Disposable {
                     // Refresh the block in the FIFO
                     placedBlocks.remove(index);
                     placedBlocks.add(tilePos);
+                    blockPlaceSound.play(Constants.DEFAULT_AUDIO_VOLUME);
                 }
             }
         }
