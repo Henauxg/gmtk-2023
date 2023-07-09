@@ -7,38 +7,24 @@ import fr.baldurcrew.gmtk2023.level.Level;
 import fr.baldurcrew.gmtk2023.level.Levels;
 import fr.baldurcrew.gmtk2023.utils.NumericRenderer;
 
+import java.util.Arrays;
+import java.util.LinkedList;
+
 public class GameScene implements Scene {
 
     private final CoreGame game;
     private final NumericRenderer numericRenderer;
     private boolean paused;
     private Level level;
+    private LinkedList<Level> levels;
 
     public GameScene(CoreGame coreGame) {
         this.game = coreGame;
         this.paused = false;
         this.numericRenderer = new NumericRenderer();
 
-        level = Levels.LEVELS[0];
-
-//        for (int i = 1; i < 28; i++) {
-//            tilemap.setTile(tilemap.getValidTilePosition(i, 7), TileType.Block);
-//        }
-
-//        int tickFactor = 2;
-//        for (int i = 0; i < 10; i++) {
-//            inputSequencer.addInput(new InputSequencer.Input(InputType.Idle, InputSequencer.UNIT_MOVEMENT_TICKS));
-//            inputSequencer.addInput(new InputSequencer.Input(InputType.Left, InputSequencer.UNIT_MOVEMENT_TICKS));
-//            inputSequencer.addInput(new InputSequencer.Input(InputType.Idle, InputSequencer.UNIT_MOVEMENT_TICKS));
-//            inputSequencer.addInput(new InputSequencer.Input(InputType.Idle, InputSequencer.UNIT_MOVEMENT_TICKS));
-//            inputSequencer.addInput(new InputSequencer.Input(InputType.Right, InputSequencer.UNIT_MOVEMENT_TICKS));
-//            inputSequencer.addInput(new InputSequencer.Input(InputType.Idle, InputSequencer.UNIT_MOVEMENT_TICKS));
-//            inputSequencer.addInput(new InputSequencer.Input(InputType.Idle, InputSequencer.UNIT_MOVEMENT_TICKS));
-//            inputSequencer.addInput(new InputSequencer.Input(InputType.Left, InputSequencer.UNIT_MOVEMENT_TICKS));
-//            inputSequencer.addInput(new InputSequencer.Input(InputType.Idle, InputSequencer.UNIT_MOVEMENT_TICKS));
-//            inputSequencer.addInput(new InputSequencer.Input(InputType.Idle, InputSequencer.UNIT_MOVEMENT_TICKS));
-//            inputSequencer.addInput(new InputSequencer.Input(InputType.Right, InputSequencer.UNIT_MOVEMENT_TICKS));
-//        }
+        levels = new LinkedList<>(Arrays.stream(Levels.LEVELS).toList());
+        level = levels.removeFirst();
     }
 
     @Override
@@ -62,7 +48,11 @@ public class GameScene implements Scene {
         if (paused) return;
 
         final var won = level.update();
-        // TODO Handle win state
+        if (won) {
+            if (levels.size() > 0) {
+                level = levels.removeFirst();
+            }
+        }
     }
 
     @Override
