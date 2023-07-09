@@ -1,5 +1,6 @@
 package fr.baldurcrew.gmtk2023.npc;
 
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -22,6 +23,7 @@ public class Npc implements ContactHandler, Disposable {
     private static final float JUMP_IMPULSE_Y = 5.5f;
     private final Body body;
     private final World world;
+    private final Sound footstepsSound;
     private Animation<TextureRegion> animation;
     private float animationTimer;
     private NpcAnimation currentAnimation;
@@ -37,6 +39,7 @@ public class Npc implements ContactHandler, Disposable {
         this.previousInputId = 0;
         this.previousAnimation = currentAnimation;
         this.animation = NpcResources.getInstance().getAnimation(currentAnimation);
+        this.footstepsSound = NpcResources.getInstance().footstepsSound;
         this.animationTimer = 0f;
         this.body = createBody(world, position, NPC_DENSITY, NPC_FRICTION, NPC_RESTITUTION);
         this.contactGroundFixtures = new HashSet<>();
@@ -117,7 +120,7 @@ public class Npc implements ContactHandler, Disposable {
         switch (input.type()) {
             case Left -> {
                 if (previousInputId != input.id()) {
-                    NpcResources.getInstance().footstepsSound.play(Constants.DEFAULT_AUDIO_VOLUME);
+                    footstepsSound.play(Constants.DEFAULT_AUDIO_VOLUME);
                 }
                 desiredVelocityX = -MAX_NPC_VELOCITY_X;
                 currentAnimation = NpcAnimation.Run;
@@ -125,7 +128,7 @@ public class Npc implements ContactHandler, Disposable {
             }
             case Right -> {
                 if (previousInputId != input.id()) {
-                    NpcResources.getInstance().footstepsSound.play(Constants.DEFAULT_AUDIO_VOLUME);
+                    footstepsSound.play(Constants.DEFAULT_AUDIO_VOLUME);
                 }
                 desiredVelocityX = MAX_NPC_VELOCITY_X;
                 currentAnimation = NpcAnimation.Run;
