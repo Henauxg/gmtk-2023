@@ -50,7 +50,7 @@ public class Levels {
             }
 
             final var levelInputs = new LinkedList<InputType>();
-            levelInputs.addAll(List.of(InputType.Idle, InputType.Idle, InputType.Idle, InputType.Left, InputType.Idle, InputType.Left, InputType.Idle, InputType.JumpLeft, InputType.Idle, InputType.Right, InputType.Left, InputType.Idle, InputType.Left, InputType.Idle, InputType.JumpLeft));
+            levelInputs.addAll(List.of(InputType.Idle, InputType.Idle, InputType.Idle, InputType.Left, InputType.Idle, InputType.Left, InputType.Idle, InputType.Idle, InputType.Right, InputType.Left, InputType.Idle, InputType.Left, InputType.Idle, InputType.JumpLeft, InputType.Left, InputType.Left, InputType.Left, InputType.Left, InputType.Left, InputType.Idle, InputType.Left, InputType.Left, InputType.Left, InputType.Left, InputType.Left));
 
             LEVEL_1 = new Level(29, 8, levelBlocks, new Cutscene(startCutsceneEvents), new TileRect(8, 8, 2, 2), levelInputs);
         }
