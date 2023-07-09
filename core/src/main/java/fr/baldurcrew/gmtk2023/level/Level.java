@@ -26,17 +26,25 @@ import fr.baldurcrew.gmtk2023.npc.Npc;
 import fr.baldurcrew.gmtk2023.npc.NpcResources;
 import fr.baldurcrew.gmtk2023.physics.WorldContactListener;
 import fr.baldurcrew.gmtk2023.utils.NumericRenderer;
+import fr.baldurcrew.gmtk2023.utils.ParallaxLayer;
 import fr.baldurcrew.gmtk2023.utils.Utils;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 
 public class Level implements Disposable {
 
+    public static final String LAYER_00 = "background/background_0.png";
+    public static final String LAYER_01 = "background/background_1.png";
+    public static final String LAYER_02 = "background/background_2.png";
+
     public static final int MAX_PLACED_BLOCKS_COUNT = 3;
     private static final Vector2 PLACED_BLOCK_NUMBER_SIZE = Constants.TILE_SIZE.cpy().scl(0.5f);
 
+    //    public final Tilemap tilemap;
+    //TODO Way to give tiles to Level
     public final boolean isRandom;
     public final int startingTileX;
     public final int startingTileY;
@@ -55,6 +63,8 @@ public class Level implements Disposable {
     private final int cutsceneStartingTileX;
     private final int cutsceneStartingTileY;
     private TileRect endArea; // Optional
+    private List<ParallaxLayer> backgroundLayers;
+
     private LinkedList<Tilemap.TilePosition> placedBlocks;
     private Tilemap tilemap;
     private InputSequencer inputSequencer;
@@ -86,6 +96,8 @@ public class Level implements Disposable {
         this.renderInputQueue = false;
         this.renderEndArea = false;
 
+        createParallaxLayers();
+
         labelStyle = new Label.LabelStyle();
         labelStyle.font = CommonResources.getInstance().defaultFont;
         uiLabel = new Label("", labelStyle);
@@ -95,6 +107,15 @@ public class Level implements Disposable {
         uiLabel.setAlignment(Align.center);
 
         stage.addActor(uiLabel);
+    }
+
+    private void createParallaxLayers() {
+        backgroundLayers = new ArrayList<>();
+
+        backgroundLayers.add(new ParallaxLayer(new Texture(LAYER_00), 80, 1, 0.65f, 0f, true, false, 0f, 0f));
+      backgroundLayers.add(new ParallaxLayer(new Texture(LAYER_01), 40, 1, 0.65f, 0.1f, true, false, 0f, 0f));
+        backgroundLayers.add(new ParallaxLayer(new Texture(LAYER_02), 30, 1, 0.65f, 0.01f, true, false, 0f, 0f));
+
     }
 
     public Level(int startingTileX, int startingTileY, int cutsceneStartingTileX, int cutsceneStartingTileY, List<Tilemap.TilePosition> blocks, Cutscene startCutscene) {
@@ -116,6 +137,9 @@ public class Level implements Disposable {
         this.inputSequencer = new InputSequencer(isRandom);
         this.uiLabel.setText("");
 
+        if (this.tilemap != null) {
+            this.tilemap.dispose();
+        }
         this.tilemap = new Tilemap(world, Constants.TILE_SIZE.cpy().scl(-1f), Constants.TILE_SIZE.cpy(), Math.round(Constants.VIEWPORT_WIDTH / Constants.TILE_SIZE.x) + 2, Math.round(Constants.VIEWPORT_HEIGHT / Constants.TILE_SIZE.y) + 2);
         worldContactListener.clear();
 
@@ -143,6 +167,7 @@ public class Level implements Disposable {
     public void render(SpriteBatch spriteBatch, Box2DDebugRenderer debugRenderer, NumericRenderer numericRenderer, Camera camera, boolean debugMode, float deltaTime) {
         spriteBatch.begin();
         spriteBatch.setProjectionMatrix(camera.combined);
+        backgroundLayers.forEach(l -> l.render(camera, spriteBatch, deltaTime));
         tilemap.render(deltaTime, spriteBatch);
         // TODO Render green blinking block under cursor ? (wont work on phones)
         // TODO + Red blinking block for the next block that will disappear
