@@ -6,11 +6,14 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.github.xpenatan.imgui.core.ImGui;
 import fr.baldurcrew.gmtk2023.Constants;
 import fr.baldurcrew.gmtk2023.inputs.InputSequencer;
 import fr.baldurcrew.gmtk2023.inputs.InputType;
+import fr.baldurcrew.gmtk2023.level.cutscene.Cutscene;
 import fr.baldurcrew.gmtk2023.level.tiles.TileRect;
 import fr.baldurcrew.gmtk2023.level.tiles.Tilemap;
 import fr.baldurcrew.gmtk2023.level.tiles.types.TileType;
@@ -20,6 +23,7 @@ import fr.baldurcrew.gmtk2023.utils.NumericRenderer;
 import fr.baldurcrew.gmtk2023.utils.Utils;
 
 import java.util.LinkedList;
+import java.util.List;
 
 
 public class Level implements Disposable {
@@ -33,34 +37,51 @@ public class Level implements Disposable {
     public final int startingTileX;
     public final int startingTileY;
 
+    private final Stage stage;
     private final World world;
     private final WorldContactListener worldContactListener;
+    private final List<InputType> levelInputs;
+    private final List<Tilemap.TilePosition> levelBlocks;
+    private final Cutscene startCutscene;
+
     private TileRect endArea; // Optional
     private LinkedList<Tilemap.TilePosition> placedBlocks;
     private Tilemap tilemap;
     private InputSequencer inputSequencer;
     private Npc npc;
+    private boolean started;
+    private boolean renderInputQueue;
+    private boolean renderEndArea;
 
-    private Level(boolean random, int startingTileX, int startingTileY) {
+    private Level(boolean random, int startingTileX, int startingTileY, List<Tilemap.TilePosition> blocks, Cutscene startCutscene) {
         this.isRandom = random;
         this.startingTileX = startingTileX;
         this.startingTileY = startingTileY;
 
+        this.stage = new Stage(new ScreenViewport());
         this.world = new World(new Vector2(0, Constants.GRAVITY_VALUE), true);
         this.worldContactListener = new WorldContactListener();
         this.world.setContactListener(worldContactListener);
+        this.levelInputs = new LinkedList<>();
+        this.levelBlocks = blocks;
+        this.startCutscene = startCutscene;
+        this.started = false;
+        this.renderInputQueue = false;
+        this.renderEndArea = false;
+    }
 
+    public Level(int startingTileX, int startingTileY, List<Tilemap.TilePosition> blocks, Cutscene startCutscene) {
+        this(true, startingTileX, startingTileY, blocks, startCutscene);
+        // TODO tilemap data;
         reset();
     }
 
-    public Level(int startingTileX, int startingTileY) {
-        this(true, startingTileX, startingTileY);
-        // TODO tilemap data;
-    }
-
-    public Level(int startingTileX, int startingTileY, TileRect endArea) {
-        this(false, startingTileX, startingTileY);
+    public Level(int startingTileX, int startingTileY, List<Tilemap.TilePosition> blocks, Cutscene startCutscene, TileRect endArea, List<InputType> inputs) {
+        this(false, startingTileX, startingTileY, blocks, startCutscene);
         this.endArea = endArea;
+        this.levelInputs.addAll(inputs);
+
+        reset();
     }
 
     public void reset() {
@@ -72,6 +93,8 @@ public class Level implements Disposable {
         }
         this.tilemap = new Tilemap(world, Constants.TILE_SIZE.cpy().scl(-1f), Constants.TILE_SIZE.cpy(), Math.round(Constants.VIEWPORT_WIDTH / Constants.TILE_SIZE.x) + 2, Math.round(Constants.VIEWPORT_HEIGHT / Constants.TILE_SIZE.y) + 2);
         worldContactListener.clear();
+
+        this.levelBlocks.forEach(blockPos -> tilemap.setTile(blockPos, TileType.Block));
 
         if (this.npc != null) {
             this.npc.dispose();
@@ -91,17 +114,33 @@ public class Level implements Disposable {
             numericRenderer.renderNumber(spriteBatch, i + 1, worldPos, PLACED_BLOCK_NUMBER_SIZE);
         }
         npc.render(deltaTime, spriteBatch);
-        inputSequencer.render(deltaTime, camera, spriteBatch);
+        if (renderInputQueue) {
+            inputSequencer.render(deltaTime, camera, spriteBatch);
+        }
         spriteBatch.end();
+
+        if (!started) {
+            started = startCutscene.render(spriteBatch, deltaTime, this);
+            if (started) {
+                start();
+            }
+        }
+//        stage.act();
+        stage.draw();
 
         if (debugMode) {
             debugRenderer.render(world, camera.combined);
+            renderDebugUi();
         }
-
-        renderUi();
     }
 
-    private void renderUi() {
+    private void start() {
+        renderInputQueue = true;
+        renderEndArea = true;
+        this.levelInputs.forEach(input -> this.inputSequencer.addInput(input));
+    }
+
+    private void renderDebugUi() {
         ImGui.Begin("Debug");
 
         ImGui.Separator();
@@ -141,7 +180,7 @@ public class Level implements Disposable {
     }
 
     public void handleInputs() {
-        if (Gdx.input.justTouched()) {
+        if (started && Gdx.input.justTouched()) {
             final var worldPos = Utils.getInputWorldPosition(Constants.VIEWPORT_WIDTH, Constants.VIEWPORT_HEIGHT);
             final var tilePos = tilemap.getValidTilePosition(worldPos);
             if (tilePos != null) {
@@ -176,5 +215,21 @@ public class Level implements Disposable {
     public void dispose() {
         world.dispose();
         tilemap.dispose();
+    }
+
+    public void addInputs(List<InputType> inputs) {
+        inputs.forEach(input -> inputSequencer.addInput(input));
+    }
+
+    public void showInputQueue() {
+        this.renderInputQueue = true;
+    }
+
+    public void showEndArea() {
+        this.renderEndArea = true;
+    }
+
+    public Stage getStage() {
+        return this.stage;
     }
 }
