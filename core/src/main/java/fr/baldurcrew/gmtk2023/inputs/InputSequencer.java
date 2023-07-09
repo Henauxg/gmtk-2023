@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import fr.baldurcrew.gmtk2023.Constants;
 
 import java.util.LinkedList;
+import java.util.Objects;
 
 public class InputSequencer {
 
@@ -96,7 +97,15 @@ public class InputSequencer {
         batch.draw(InputResources.getInstance().bordersTexture, startX, renderY, QUEUE_INPUT_RENDER_WIDTH, QUEUE_RENDER_HEIGHT);
     }
 
-    public record Input(InputType type, int id) {
+    public static final class Input {
+        private final InputType type;
+        private final int id;
+
+        public Input(InputType type, int id) {
+            this.type = type;
+            this.id = id;
+        }
+
         @Override
         public String toString() {
             return "Input{" +
@@ -104,5 +113,28 @@ public class InputSequencer {
                 ", id=" + id +
                 '}';
         }
+
+        public InputType type() {
+            return type;
+        }
+
+        public int id() {
+            return id;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == this) return true;
+            if (obj == null || obj.getClass() != this.getClass()) return false;
+            var that = (Input) obj;
+            return Objects.equals(this.type, that.type) &&
+                this.id == that.id;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(type, id);
+        }
+
     }
 }

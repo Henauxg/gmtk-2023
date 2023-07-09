@@ -10,6 +10,8 @@ import fr.baldurcrew.gmtk2023.level.tiles.types.Tile;
 import fr.baldurcrew.gmtk2023.level.tiles.types.TileType;
 import fr.baldurcrew.gmtk2023.level.tiles.types.VoidTile;
 
+import java.util.Objects;
+
 public class Tilemap implements Disposable {
 
     private final int width;
@@ -139,7 +141,15 @@ public class Tilemap implements Disposable {
         }
     }
 
-    public record TilePosition(int i, int j) {
+    public static final class TilePosition {
+        private final int i;
+        private final int j;
+
+        public TilePosition(int i, int j) {
+            this.i = i;
+            this.j = j;
+        }
+
         protected Vector2 toWorld(Vector2 origin, Vector2 tileSize) {
             return new Vector2(origin.x + i * tileSize.x + tileSize.x / 2f, origin.y + j * tileSize.y + tileSize.y / 2f);
         }
@@ -151,5 +161,28 @@ public class Tilemap implements Disposable {
                 ", j=" + j +
                 '}';
         }
+
+        public int i() {
+            return i;
+        }
+
+        public int j() {
+            return j;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == this) return true;
+            if (obj == null || obj.getClass() != this.getClass()) return false;
+            var that = (TilePosition) obj;
+            return this.i == that.i &&
+                this.j == that.j;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(i, j);
+        }
+
     }
 }
