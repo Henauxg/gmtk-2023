@@ -111,6 +111,8 @@ public class Level implements Disposable {
 
         stage.addActor(uiText);
         stage.addActor(uiLevelName);
+
+        createParallaxLayers();
     }
 
     public Level(String levelName, int startingTileX, int startingTileY, int cutsceneStartingTileX, int cutsceneStartingTileY, List<Tilemap.TilePosition> blocks, Cutscene startCutscene) {
@@ -129,7 +131,6 @@ public class Level implements Disposable {
 
     private void createParallaxLayers() {
         backgroundLayers = new ArrayList<>();
-
         backgroundLayers.add(new ParallaxLayer(new Texture(LAYER_00), 80, 1, 0.65f, 0f, true, false, 0f, 0f));
         backgroundLayers.add(new ParallaxLayer(new Texture(LAYER_01), 40, 1, 0.65f, 0.1f, true, false, 0f, 0f));
         backgroundLayers.add(new ParallaxLayer(new Texture(LAYER_02), 30, 1, 0.65f, 0.01f, true, false, 0f, 0f));
