@@ -9,7 +9,11 @@ dependencies {
   api "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
   api "com.badlogicgames.gdx:gdx:$gdxVersion"
 
+
   // Required
   implementation "com.github.xpenatan.gdx-imgui:core:$project.gdxImguiVersion"
   implementation "com.github.xpenatan.gdx-imgui:gdx:$project.gdxImguiVersion"
+
+  implementation 'com.github.raeleus.stripe:stripe:1.4.5'
+  implementation 'com.github.raeleus.TenPatch:tenpatch:5.2.3'
 }
