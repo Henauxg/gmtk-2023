@@ -51,7 +51,8 @@ public class Level implements Disposable {
     private final Texture endAreaTileTexture;
     private final Sound blockPlaceSound;
     private final Label.LabelStyle labelStyle;
-    private final Label uiLabel;
+    private final Label uiText;
+    private final Label uiLevelName;
     private final int cutsceneStartingTileX;
     private final int cutsceneStartingTileY;
     private TileRect endArea; // Optional
@@ -64,7 +65,7 @@ public class Level implements Disposable {
     private boolean renderEndArea;
     private boolean levelLost;
 
-    private Level(boolean random, int startingTileX, int startingTileY, int cutsceneStartingTileX, int cutsceneStartingTileY, List<Tilemap.TilePosition> blocks, Cutscene startCutscene) {
+    private Level(String levelName, boolean random, int startingTileX, int startingTileY, int cutsceneStartingTileX, int cutsceneStartingTileY, List<Tilemap.TilePosition> blocks, Cutscene startCutscene) {
         this.isRandom = random;
         this.startingTileX = startingTileX;
         this.startingTileY = startingTileY;
@@ -88,23 +89,30 @@ public class Level implements Disposable {
 
         labelStyle = new Label.LabelStyle();
         labelStyle.font = CommonResources.getInstance().defaultFont;
-        uiLabel = new Label("", labelStyle);
+        uiText = new Label("", labelStyle);
 //        uiLabel.setSize(Gdx.graphics.getWidth() / 2f, 2f);
-        uiLabel.setSize(2f, 2f);
-        uiLabel.setPosition(Gdx.graphics.getWidth() / 2f, Gdx.graphics.getHeight() * 1f / 4f);
-        uiLabel.setAlignment(Align.center);
+        uiText.setSize(2f, 2f);
+        uiText.setPosition(Gdx.graphics.getWidth() / 2f, Gdx.graphics.getHeight() * 1f / 4f);
+        uiText.setAlignment(Align.center);
 
-        stage.addActor(uiLabel);
+        uiLevelName = new Label("", labelStyle);
+        uiLevelName.setSize(2f, 2f);
+        uiLevelName.setPosition(Gdx.graphics.getWidth() / 2f, Gdx.graphics.getHeight() * 1f / 20f);
+        uiLevelName.setAlignment(Align.center);
+        uiLevelName.setText(levelName);
+
+        stage.addActor(uiText);
+        stage.addActor(uiLevelName);
     }
 
-    public Level(int startingTileX, int startingTileY, int cutsceneStartingTileX, int cutsceneStartingTileY, List<Tilemap.TilePosition> blocks, Cutscene startCutscene) {
-        this(true, startingTileX, startingTileY, cutsceneStartingTileX, cutsceneStartingTileY, blocks, startCutscene);
+    public Level(String levelName, int startingTileX, int startingTileY, int cutsceneStartingTileX, int cutsceneStartingTileY, List<Tilemap.TilePosition> blocks, Cutscene startCutscene) {
+        this(levelName, true, startingTileX, startingTileY, cutsceneStartingTileX, cutsceneStartingTileY, blocks, startCutscene);
 
         build(cutsceneStartingTileX, cutsceneStartingTileY);
     }
 
-    public Level(int startingTileX, int startingTileY, int cutsceneStartingTileX, int cutsceneStartingTileY, List<Tilemap.TilePosition> blocks, Cutscene startCutscene, TileRect endArea, List<InputType> inputs) {
-        this(false, startingTileX, startingTileY, cutsceneStartingTileX, cutsceneStartingTileY, blocks, startCutscene);
+    public Level(String levelName, int startingTileX, int startingTileY, int cutsceneStartingTileX, int cutsceneStartingTileY, List<Tilemap.TilePosition> blocks, Cutscene startCutscene, TileRect endArea, List<InputType> inputs) {
+        this(levelName, false, startingTileX, startingTileY, cutsceneStartingTileX, cutsceneStartingTileY, blocks, startCutscene);
         this.endArea = endArea;
         this.levelInputs.addAll(inputs);
 
@@ -114,7 +122,7 @@ public class Level implements Disposable {
     public void build(int npcX, int npcY) {
         this.placedBlocks = new LinkedList<>();
         this.inputSequencer = new InputSequencer(isRandom);
-        this.uiLabel.setText("");
+        this.uiText.setText("");
 
         this.tilemap = new Tilemap(world, Constants.TILE_SIZE.cpy().scl(-1f), Constants.TILE_SIZE.cpy(), Math.round(Constants.VIEWPORT_WIDTH / Constants.TILE_SIZE.x) + 2, Math.round(Constants.VIEWPORT_HEIGHT / Constants.TILE_SIZE.y) + 2);
         worldContactListener.clear();
@@ -217,7 +225,7 @@ public class Level implements Disposable {
         final var isDead = npc.update(input);
         if (isDead) {
             levelLost = true;
-            uiLabel.setText("You lost, tap to retry");
+            uiText.setText("You lost, tap to retry");
         }
 
         world.step(Constants.TIME_STEP, Constants.VELOCITY_ITERATIONS, Constants.POSITION_ITERATIONS);

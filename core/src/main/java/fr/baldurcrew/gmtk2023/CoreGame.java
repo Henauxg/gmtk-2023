@@ -46,6 +46,10 @@ public class CoreGame extends Game implements InputProcessor {
         Box2D.init();
         debugRenderer = new Box2DDebugRenderer();
 
+        CommonResources.getInstance().mainMenuMusic.setLooping(true);
+        CommonResources.getInstance().mainMenuMusic.setVolume(Constants.DEFAULT_AUDIO_VOLUME);
+        CommonResources.getInstance().mainMenuMusic.play();
+
         this.setScene(new MainMenuScene(this));
     }
 

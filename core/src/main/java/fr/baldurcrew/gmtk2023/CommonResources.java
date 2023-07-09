@@ -1,6 +1,7 @@
 package fr.baldurcrew.gmtk2023;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
@@ -10,6 +11,8 @@ public class CommonResources {
 
     public final BitmapFont defaultFont;
     public final Texture greenTileOverlayTexture;
+    public final Music mainMenuMusic;
+    public final Music mainGameMusic;
 
     public CommonResources() {
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/PixeloidSans.ttf"));
@@ -19,6 +22,8 @@ public class CommonResources {
         generator.dispose();
 
         greenTileOverlayTexture = new Texture("tiles/green_tile_overlay.png");
+        mainMenuMusic = Gdx.audio.newMusic(Gdx.files.internal("musics/sinnesloschen-beam.mp3"));
+        mainGameMusic = Gdx.audio.newMusic(Gdx.files.internal("musics/chiptune-grooving.mp3"));
     }
 
     public static CommonResources getInstance() {
