@@ -23,6 +23,8 @@ public class NpcResources {
     private static NpcResources instance;
 
     public final Sound npcSpeakingSound;
+    public final Sound blockPlaceSound;
+    public final Sound footstepsSound;
     private final Map<NpcAnimation, Animation<TextureRegion>> npcAnimations;
 
     public NpcResources() {
@@ -34,6 +36,8 @@ public class NpcResources {
         });
 
         npcSpeakingSound = Gdx.audio.newSound(Gdx.files.internal("sounds/voice_bip.mp3"));
+        blockPlaceSound = Gdx.audio.newSound(Gdx.files.internal("sounds/block_place.mp3"));
+        footstepsSound = Gdx.audio.newSound(Gdx.files.internal("sounds/footsteps.mp3"));
     }
 
     public static NpcResources getInstance() {
